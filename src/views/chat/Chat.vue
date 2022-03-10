@@ -1,30 +1,84 @@
 <template>
-<div class="Chat">
-  <el-container>
+<div class="chat">
+  <div class="menu">
+    <header><img v-if="curHeader != ''" :src="curHeader" alt="" /></header>
+    <nav>
+      <ul>
+        <li v-for="(item,index) in iconList" :key="index" @click="menuClick(index)" :class="index===curIndex?'active':''">
+          <el-icon>
+            <el-badge :value="unReadValue(index)" :max="99">
+              <i class="iconfont" :class="item.icon"></i>
+            </el-badge>
+          </el-icon>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <el-container class="content">
     <el-aside>
-      <!--头像，用户名，已创建的会话-->
-      <div class="user_self">
-        <img v-if="curHeader!=''" :src="curHeader" alt="" />
-        <span>{{ curUserName }}</span>
-      </div>
-      <!--已创建的会话-->
-      <div class="user_session" v-if="session_yes.length!=0">
-        <el-table :highlight-current-row="true" :show-header="false" :data="session_yes" style="width: 100%">
-          <el-table-column>
-            <template v-slot="scope" style="width: 100%">
-              <!-- 开始会话，将选中的session对象作为参数进行传递 -->
-              <el-row @click="startSession(scope.row)">
-                <el-col :span="6">
-                  <img :src="scope.row.toHeader" alt="" />
-                </el-col>
-                <el-col :span="18">
-                  <span>{{ scope.row.toUserName }}</span>
-                </el-col>
-              </el-row>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
+      <section :class="curIndex===0?'show':''">
+        <!--已创建的会话-->
+        <div class="session" v-if="session_yes.length != 0">
+          <el-table :highlight-current-row="true" :show-header="false" :data="session_yes" style="width: 100%">
+            <el-table-column>
+              <template v-slot="scope" style="width: 100%">
+                <!-- 开始会话，将选中的session对象作为参数进行传递 -->
+                <el-row @click="startSession(scope.row)">
+                  <el-col :span="6">
+                    <img :src="scope.row.toHeader" alt="" />
+                  </el-col>
+                  <el-col :span="18">
+                    <span>{{ scope.row.toUserName }}</span>
+                  </el-col>
+                </el-row>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
+      <section :class="curIndex===1?'show':''">
+        <div class="newFriend">
+          <el-table v-if="newFriendList.length != 0" :show-header="false" :data="newFriendList" style="width: 100%">
+            <el-table-column>
+              <template v-slot="scope">
+                <!-- 开始创建会话，将选中的好友对象作为参数进行传递 -->
+                <el-row @click="userClick(scope.row)">
+                  <el-col :span="5">
+                    <img :src="scope.row.header" alt="" />
+                  </el-col>
+                  <el-col :span="11">
+                    <span>{{ scope.row.username }}</span>
+                    <span>{{ scope.row.content }}</span>
+                  </el-col>
+                  <el-col class="btn" :span="7">
+                    <el-button type="primary">同意</el-button>
+                    <el-button type="primary">拒绝</el-button>
+                  </el-col>
+                </el-row>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
+      <section :class="curIndex===2?'show':''">
+        <div class="friend">
+          <el-table v-if="friendList.length != 0" :show-header="false" :data="friendList" style="width: 100%">
+            <el-table-column>
+              <template v-slot="scope">
+                <!-- 开始创建会话，将选中的好友对象作为参数进行传递 -->
+                <el-row @click="createSession(scope.row)">
+                  <el-col :span="6">
+                    <img :src="scope.row.header" alt="" />
+                  </el-col>
+                  <el-col :span="18">
+                    <span>{{ scope.row.username }}</span>
+                  </el-col>
+                </el-row>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
     </el-aside>
     <el-container>
       <el-header>{{ curSessionUserName }}</el-header>
@@ -32,16 +86,16 @@
       <el-main ref="message">
         <div class="msg" v-for="(item, i) in msgList" :key="i">
           <!-- 判断消息是否为当前用户发送的，是则在右边显示，否则左边显示 -->
-          <img v-if="item.fromUserId === curUserId" class="r" :src="curHeader">
+          <img v-if="item.fromUserId === curUserId" class="rShow" :src="curHeader" />
           <img v-else :src="toHeader" alt="" />
           <div :class="item.fromUserId === curUserId ? 'msg_right' : 'msg_left'">
-            <span v-if="item.contentType===0">{{item.content}}</span>
-            <img v-else-if="item.contentType===1" class="chatImg" :src="'http://localhost:1997/mimg/'+item.content" alt="">
+            <span v-if="item.contentType === 0">{{ item.content }}</span>
+            <img v-else-if="item.contentType === 1" class="chatImg" :src="'http://localhost:1997/mimg/' + item.content" alt="" />
           </div>
         </div>
       </el-main>
       <el-footer>
-        <!-- 将需要发送的信心存储 -->
+        <!-- 将需要发送的信息存储 -->
         <div class="icon">
           <i class="iconfont icon-biaoqing">
             <emoji @hemoji="hemoji"></emoji>
@@ -54,40 +108,15 @@
       </el-footer>
     </el-container>
   </el-container>
-  <!-- 好友列表 -->
-  <div class="aside_right">
-    <div class="demo-collapse">
-      <el-collapse accordion v-model="activeName">
-        <el-collapse-item title="新朋友" name="1"> </el-collapse-item>
-        <el-collapse-item title="好友" name="2">
-          <el-table v-if="friendList.length!=0" :show-header="false" :data="friendList" style="width: 100%">
-            <el-table-column>
-              <template v-slot="scope">
-                <!-- 开始创建会话，将选中的好友对象作为参数进行传递 -->
-                <el-row @click="createSession(scope.row)">
-                  <el-col :span="7">
-                    <img :src="scope.row.header" alt="" width="60" height="60" />
-                  </el-col>
-                  <el-col :span="17">
-                    <span>{{ scope.row.username }}</span>
-                  </el-col>
-                </el-row>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-collapse-item>
-      </el-collapse>
-    </div>
-  </div>
-  <login @handLogin="Login"></login>
 </div>
 </template>
 
 <script>
 import Login from "common/Login";
-import Emoji from "content/Emoji"
+import Emoji from "content/Emoji";
 import {
-  getFriendList
+  getFriendList,
+  getNewFriendList
 } from "@/network/user";
 import {
   createSession,
@@ -112,15 +141,27 @@ export default {
       textarea: "", //将要发送的消息
       session_yes: [], //已经建立的会话
       session_no: [], //还未建立的会话
-      friendList: [], //好友列表
+      friendList: [], //好友列表,
+      newFriendList: [],//申请好友列表
       msgList: [], //消息列表
-      currentRowId: "",
-      activeName: "2",
-      fileList: [],
+      fileList: [],//上传的文件
       paramsImg: {
         id: "",
-        fromUserId: ""
-      }
+        fromUserId: "",
+      },//发图片需要携带的参数
+      curIndex: 0, //显示哪个菜单
+      iconList: [{
+          'icon': 'icon-pinglun4'
+        },
+        {
+          'icon': 'icon-tianjiahaoyou'
+        },
+        {
+          'icon': 'icon-biaoqing1'
+        },
+      ],
+      comValue: '', //未读聊天数
+      newValue: '', //未读好友申请数
     };
   },
   watch: {
@@ -128,21 +169,61 @@ export default {
     msgList: {
       handler() {
         this.$nextTick(function () {
-          let el = document.querySelector('.el-main');
+          let el = document.querySelector(".el-main");
           el.scrollTop = el.scrollHeight;
-        })
+        });
       },
-      deep: true
-
+      deep: true,
+    },
+  },
+  computed:{
+    unReadValue(){
+      return function(value){
+        let newValue='';
+        switch(value){
+          case 0:newValue=this.comValue;break;
+          case 1:newValue=this.newValue;break;
+        }
+        return newValue;
+      }
     }
   },
+  created() {
+    let user = JSON.parse(this.$store.state.user);
+    // console.log(user);
+    this.curUserName = user.username;
+    this.curUserId = user.id;
+    this.curHeader = user.header;
+
+    this.initWebSocket(this.curUserId, 9999);
+    this.getFriendList(this.curUserId);
+    this.getNewFriendList(this.curUserId);
+  },
   methods: {
-    //登录处理
-    Login(user) {
-      this.curUserName = user.username;
-      this.curUserId = user.id;
-      this.curHeader = user.header;
-      this.getFriendList(this.curUserId);
+    menuClick(index) {
+      this.curIndex = index;
+    },
+    //好友请求列表
+    getNewFriendList(curUserId) {
+      getNewFriendList(curUserId).then((res) => {
+        // console.log(res);
+        this.newFriendList = res;
+      });
+    },
+    //开始建立会话与好友交流
+    userClick(user) {
+      let userData = {
+        id: user.uid,
+        username: user.username,
+        header: user.header,
+      };
+      this.$store.commit("curUser", userData);
+      this.$router.push({
+        path: "/article",
+        query: {
+          id: user.uid,
+        },
+      });
     },
     //初始化websocket
     initWebSocket(curUserId, sessionId) {
@@ -162,10 +243,18 @@ export default {
     },
     websocketonmessage(e) {
       let data = JSON.parse(e.data);
+      console.log(data);
       if (data instanceof Array) {
         this.session_yes = data;
       } else {
-        this.msgList.push(data);
+        switch (data.contentType) {
+          case 1:
+            this.msgList.push(data);
+            break;
+          case 2:
+            this.newFriendList.push(data);
+            break;
+        }
       }
     },
     websocketclose(e) {
@@ -199,7 +288,7 @@ export default {
       this.curSessionUserName = session.toUserName;
       this.toHeader = session.toHeader;
       this.paramsImg.id = this.curSessionId;
-      this.paramsImg.fromUserId = this.curUserId
+      this.paramsImg.fromUserId = this.curUserId;
       if (this.websock != undefined) {
         this.websock.close();
       }
@@ -229,7 +318,7 @@ export default {
       let data = {
         fromUserId: this.curUserId, //谁发送的
         content: this.textarea, //消息内容
-        contentType: 0
+        contentType: 0,
       };
       this.msgList.push(data);
       // console.log(data);
@@ -238,7 +327,7 @@ export default {
     },
     //表情
     hemoji(emoji) {
-      let el = document.querySelector('textarea');
+      let el = document.querySelector("textarea");
       //获取光标位置并插入
       //插入字符串后将光标移动至插入字符串的末尾------未解决
       let start = el.value.substr(0, el.selectionStart) + emoji.i;
@@ -250,45 +339,42 @@ export default {
       let data = {
         fromUserId: this.curUserId, //谁发送的
         content: message, //消息内容
-        contentType: 1
+        contentType: 1,
       };
       this.msgList.push(data);
     },
     handleError(message) {
       console.log(message);
-    }
+    },
   },
-
 };
 </script>
 
 <style lang="less" scoped>
-.Chat {
+.chat {
+  width: 100%;
   height: 100%;
   position: relative;
-  left: -150px;
   box-shadow: 0 5px 10px #ccc;
 }
 
-.Chat::-webkit-scrollbar,
+// 不显示滚动条
+.chat::-webkit-scrollbar,
 .el-main::-webkit-scrollbar {
   width: 0;
 }
 
 .aside_right {
   height: 100%;
-  width: 300px;
+  width: 500px;
   position: absolute;
   top: 0;
-  padding-left: 12px;
   margin-left: 100%;
+  z-index: 99;
 }
 
-.el-header {
-  background-color: #27C3FD;
-  color: #fff;
-  text-align: center;
-  line-height: 60px;
+.aside_right img {
+  cursor: pointer;
 }
 
 .el-footer {
@@ -298,131 +384,311 @@ export default {
   padding: 0;
   position: relative;
   box-shadow: 0 5px 10px #ccc;
-  background-color: #EEEE;
-  color: var(--el-text-color-primary);
+  background-color: #eeee;
+  // color: var(--el-text-color-primary);
   text-align: center;
   line-height: 60px;
 }
 
 .el-aside {
   width: 300px;
-  background-color: #FFFFFF;
-  color: var(--el-text-color-primary);
+  background-color: #402e58;
+  // color: var(--el-text-color-primary);
 }
 
 .el-main {
   position: relative;
   background-color: #eeeeee;
-  color: var(--el-text-color-primary);
+  // color: var(--el-text-color-primary);
 }
 
+//右侧内容
 .el-container {
-  height: 100%;
-  padding-top: 2px;
+  width: 95%;
+  height: 96vh;
+  overflow-y: hidden;
 }
 
-.user_self {
-  height: 60px;
-  background-color: #292B2E;
-  color: #000000;
-  font-size: 18px;
-  background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+@menuWidth: 50px;
+
+.content {
+  margin-left: @menuWidth;
+  background-color: #ffff;
+
+  //顶部文字
+  .el-header {
+    background-color: #ffff;
+    text-align: center;
+    line-height: 60px;
+    z-index: 99;
+  }
+
+  .el-aside {
+    section {
+      display: none;
+    }
+
+    .show {
+      display: block;
+    }
+  }
 }
 
-.user_self span {
-  line-height: 60px;
-  vertical-align: top;
-  margin-left: 15px;
+//左侧菜单
+.menu {
+  width: @menuWidth;
+  height: 96vh;
+  background-color: #35244e;
+  position: absolute;
+
+  .el-badge {
+    --el-badge-radius: 50%;
+    --el-badge-padding: 0px;
+    --el-badge-size: 10px;
+    text-align: center;
+  }
+
+  :deep(.el-badge__content.is-fixed) {
+    transform: translate(75%, -50%);
+  }
+
+  header {
+    position: relative;
+    background-color: blue;
+
+    img {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      left: 50%;
+      transform: translate(-50%);
+    }
+  }
+
+  nav {
+    position: relative;
+    top: 40px;
+    overflow: hidden;
+
+    ul {
+      width: 100%;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      .active {
+        box-sizing: border-box;
+        border-left: 3px solid blue;
+        color: #ffff;
+        background-color: #3f2e58;
+      }
+
+      li {
+        width: 100%;
+
+        i {
+          font-size: 30px;
+          margin: 10px 0;
+
+        }
+      }
+    }
+
+    .el-icon {
+      width: 100%;
+      box-sizing: border-box;
+      pointer-events: none;
+      color: #6A5983;
+    }
+  }
 }
 
-.user_self img {
-  width: 60px;
-  height: 60px;
+//已创建的会话
+.session,
+.friend {
+  .el-row {
+    background-color: #402e58;
+    overflow-x: hidden;
+
+    img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: block;
+      padding: 5px;
+      pointer-events: none;
+    }
+
+    span {
+      line-height: 40px;
+      color: #ffff;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    &:hover {
+      background-color: #493664;
+    }
+  }
 }
 
-.user_session img {
-  width: 60px;
-  height: 60px;
-  display: block;
-}
-
-.user_session span {
-  line-height: 60px;
-  color: #000000;
-  font-size: 16px;
-}
-
-.msg:last-child {
-  margin-bottom: 0;
-}
-
+//消息窗口
 .msg {
   position: relative;
   overflow: hidden;
   margin-bottom: 30px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  img {
+    display: block;
+    width: 60px;
+    height: 60px;
+  }
+
+  .chatImg {
+    display: block;
+    width: 200px;
+    height: 200px;
+  }
+
+  .msg_left,
+  .msg_right {
+    background-color: #FEFEFE;
+    padding: 10px;
+  }
+
+  .msg_left {
+    float: left;
+    margin-top: -58px;
+    margin-left: 80px;
+  }
+
+  .msg_left::before {
+    content: "";
+    position: absolute;
+    left: 65px;
+    width: 0;
+    height: 0;
+    border-color: transparent #ffffff transparent transparent;
+    border-style: solid;
+    border-width: 8px 18px 8px 0;
+  }
+
+  .msg_right {
+    float: right;
+    margin-top: -58px;
+    margin-right: 9%;
+  }
+
+  .msg_right::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: 15px;
+    right: 8%;
+    border-color: transparent transparent transparent #ffffff;
+    border-style: solid;
+    border-width: 8px 0 8px 18px;
+  }
+
+  .rShow {
+    position: relative;
+    left: 92%;
+  }
 }
 
-.msg img {
-  display: block;
-  width: 60px;
-  height: 60px;
-}
-
-.msg .chatImg {
-  display: block;
-  width: 200px;
-  height: 200px;
-}
-
-.msg_left,
-.msg_right {
-  background-color: #ffffff;
-  padding: 10px;
-}
-
-.msg_left {
-  float: left;
-  margin-top: -58px;
-  margin-left: 80px;
-}
-
-.msg_left::before {
-  content: "";
+//底部消息发送框
+.icon {
+  width: 100%;
   position: absolute;
-  left: 65px;
-  width: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: flex-start;
+
+  i {
+    font-size: 36px;
+    margin-left: 8px;
+  }
+
+  .icon-biaoqing:hover .Emoji {
+    display: block;
+  }
+
+  .Emoji {
+    display: none;
+    position: absolute;
+    top: -315px;
+    left: 0;
+  }
+}
+
+//新朋友
+.newFriend {
+  width: 100%;
+
+  .el-row {
+    color: #fff;
+    background-color: #493664;
+  }
+
+  .el-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 12px;
+    user-select: none;
+
+    span:nth-child(2) {
+      color: #ccc;
+    }
+
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      padding: 5px;
+    }
+  }
+
+  .btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+
+    .el-button {
+      width: 45px;
+      height: 25px;
+      font-size: 14px;
+    }
+  }
+
+}
+
+//el-row底部白线问题
+:deep(.el-table td.el-table__cell, .el-table th.el-table__cell.is-leaf) {
+  border-bottom: 0;
+}
+
+//el-table底部白线问题
+:deep(.el-table__inner-wrapper::before) {
   height: 0;
-  border-color: transparent #ffffff transparent transparent;
-  border-style: solid;
-  border-width: 8px 18px 8px 0;
-}
-
-.msg_right {
-  float: right;
-  margin-top: -58px;
-  margin-right: 70px;
-}
-
-.msg_right::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 0;
-  top: 15px;
-  right: 55px;
-  border-color: transparent transparent transparent #ffffff;
-  border-style: solid;
-  border-width: 8px 0 8px 18px;
-}
-
-.r {
-  position: relative;
-  left: 92%;
 }
 
 :deep(.el-table .el-table__cell) {
   padding: 0;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 :deep(.el-table .cell) {
@@ -437,12 +703,12 @@ export default {
   height: 0;
 }
 
-:deep(.el-table__body tr:hover>td) {
-  background-color: #EBEBEB !important;
+:deep(.el-table__body tr:hover > td) {
+  background-color: #ebebeb !important;
 }
 
-:deep(.el-table__body tr.current-row>td) {
-  background-color: #EBEBEB !important;
+:deep(.el-table__body tr.current-row > td) {
+  background-color: #ebebeb !important;
 }
 
 :deep(.el-textarea__inner) {
@@ -453,30 +719,6 @@ export default {
 }
 
 :deep(.el-collapse-item__content) {
-  padding: 0
-}
-
-.icon {
-  width: 100%;
-  position: absolute;
-  z-index: 999;
-  display: flex;
-  justify-content: flex-start;
-}
-
-i {
-  font-size: 36px;
-  margin-left: 8px;
-}
-
-.Emoji {
-  display: none;
-  position: absolute;
-  top: -315px;
-  left: 0;
-}
-
-.icon-biaoqing:hover .Emoji {
-  display: block;
+  padding: 0;
 }
 </style>

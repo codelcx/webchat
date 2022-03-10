@@ -27,6 +27,7 @@ export default {
   },
   methods: {
     handlerLogin() {
+      this.$router.push('/home')
       if (this.userData.username == 'admin1') {
         this.userData = {
           id: 1,
@@ -49,7 +50,9 @@ export default {
           header:"http://localhost:1997/himg/h3.png"
         }
       }
-      this.$emit('handLogin', this.userData)
+      this.$store.commit('loginUser',this.userData);
+      // let user = this.$store.getters.getUser;
+      // this.$emit('handLogin', this.userData)
     }
   }
 };
@@ -58,15 +61,16 @@ export default {
 <style scoped>
 .login {
   z-index: 9999;
-  height: 200px;
+  width: 100vw;
+  height: 100vh;
   background-color: #324153;
   display: flex;
   justify-content: center;
   align-items: center;
 
-  position: fixed;
+  /* position: fixed;
   top: 700px;
-  right: -230px;
+  right: 100px; */
 }
 
 .login-form {

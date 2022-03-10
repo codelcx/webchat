@@ -1,7 +1,15 @@
 @import './normalize.css';
 
-html,body{
+html{
   height: 100%;
   margin:0;
   padding:0;
+  overflow-y: hidden;
+}
+/* :root{
+  overflow-x: hidden;
+  overflow-y: auto;
+} */
+:root{
+  overflow-x: hidden;
 }
