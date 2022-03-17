@@ -108,6 +108,62 @@ color:transparent;
     }
   },
 ```
+- 父组件数据发生变化子组件未实时更新数据
+子组件中使用watch监听父组件传递的参数
+
+- sockjs.js控制台报错
+1.node_modules/sockjs-client/dist/sock.js
+2.1609注释 self.xhr.send(payload)
+
+- 父子元素点击事件冲突
+@cliclk.stop="childClick"
+
+- 局部元素滚动阻止页面的滚动
+overscroll-behavior:none
+
+- el-upload上传图片有大有小如何进行统一？
+```
+object-fit 属性指定元素的内容应该如何去适应指定容器的高度与宽度。
+
+object-fit:container(默认) 保持原有尺寸比例
+
+object-fit:cover
+```
+
+- 点击一个元素触发另一个元素的点击事件
+```
+this.$refs.icon.$el.click()
+```
+- 获取光标位置插入内容
+```
+      let el = document.querySelector("textarea");
+      //获取光标位置并插入
+      //插入字符串后将光标移动至插入字符串的末尾------未解决
+      let start = el.value.substr(0, el.selectionStart) + emoji.i;
+      let end = el.value.substring(el.selectionStart, el.length);
+      el.value = start + end;
+```
+- 导航栏刷新后无法保持上次的选中状态
+```
+通过路由设置的name，在mounted中同步更改当前导航栏的选中状态
+  mounted() {
+    switch (this.$route.name) {
+      case "social":
+        this.curIndex = 0;
+        break;
+      case "chat":
+        this.curIndex = 1;
+        break;
+      case "article":
+        this.curIndex = 2;
+        break;
+      case "album":
+        this.curIndex = 2;
+        break;
+    }
+    console.log(this.curIndex);
+  },
+```
 ### 未解决
 - 粘性定位生效的条件
 - 容器设置flex与相对定位，其中的span绝对定位，但是却不是根据容器进行定位
