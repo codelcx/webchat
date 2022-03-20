@@ -7,7 +7,7 @@
           <!-- 开始创建会话，将选中的好友对象作为参数进行传递 -->
           <el-row @click="createSession(scope.row)">
             <el-col :span="6">
-              <img :src="scope.row.header" alt="" />
+              <img :src="scope.row.header" alt="" @click.stop="userClick(scope.row)"/>
             </el-col>
             <el-col :span="18">
               <span>{{ scope.row.username }}</span>
@@ -27,7 +27,21 @@ export default {
   methods:{
     createSession(friend){
       this.$emit('createSession',friend);
-    }
+    },
+    userClick(user) {
+      let userData = {
+        id: user.id,
+        username: user.username,
+        header: user.header,
+      };
+      this.$store.commit("curUser", userData);
+      this.$router.push({
+        path: "/article",
+        query: {
+          id: user.id,
+        },
+      });
+    },
   }
 }
 </script>
@@ -44,7 +58,8 @@ export default {
       border-radius: 50%;
       display: block;
       padding: 5px;
-      pointer-events: none;
+      // pointer-events: none;
+      cursor: pointer;
     }
 
     span {

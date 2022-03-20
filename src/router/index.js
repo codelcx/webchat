@@ -1,12 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 const Login = ()=>import('common/Login')
 
-const Home =()=>import('views/home/Home')
+const Home = () =>import('views/home/Home')
+
+const Complaint = () =>import('content/Complaint')
+
 const Person =()=>import('views/person/Person')
 const Article =()=>import('views/person/child/Articles')
 const Album = () => import('views/person/child/Albums')
 
-const Social =()=>import('views/social/Social')
+const Social = () => import('views/social/Social')
 const Chat =()=>import('views/chat/Chat')
 
 const routes = [
@@ -27,29 +30,39 @@ const routes = [
         redirect: '/social',
       },
       {
+        name:'person',
         path: '/person',
         component: Person,
         children: [
           {
-            path: '/article',
             name:'article',
+            path: '/article',
+
             component:Article
           },
           {
+            name:'album',
             path: '/album',
             component:Album
           }
         ]
       },
       {
+        name:'social',
         path: '/social',
         component:Social
       },
       {
+        name:'chat',
         path: '/chat',
         component:Chat
       }
     ]
+  },
+  {
+    name:'complaint',
+    path: '/complaint',
+    component:Complaint
   }
 ]
 

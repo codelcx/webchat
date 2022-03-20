@@ -7,7 +7,7 @@
 <script>
 import {
   getArticleById,
-} from '@/network/social'
+} from '@/network/ajax'
 import Essay from 'content/Article'
 export default {
   name: 'Articles',

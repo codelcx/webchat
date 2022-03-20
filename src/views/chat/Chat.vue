@@ -1,98 +1,27 @@
 <template>
 <div class="chat">
-  <div class="menu">
-    <header><img v-if="curHeader != ''" :src="curHeader" alt="" /></header>
-    <nav>
-      <ul>
-        <li v-for="(item,index) in iconList" :key="index" @click="menuClick(index)" :class="index===curIndex?'active':''">
-          <el-icon>
-            <el-badge :value="unReadValue(index)" :max="99">
-              <i class="iconfont" :class="item.icon"></i>
-            </el-badge>
-          </el-icon>
-        </li>
-      </ul>
-    </nav>
-  </div>
+  <!-- 左侧菜单 -->
+  <chat-menu :headerImg="curHeader" :comValue="cValue" :newValue="fValue" @curMenu="menuClick"></chat-menu>
   <el-container class="content">
     <el-aside>
       <section :class="curIndex===0?'show':''">
         <!--已创建的会话-->
-        <div class="session" v-if="session_yes.length != 0">
-          <el-table :highlight-current-row="true" :show-header="false" :data="session_yes" style="width: 100%">
-            <el-table-column>
-              <template v-slot="scope" style="width: 100%">
-                <!-- 开始会话，将选中的session对象作为参数进行传递 -->
-                <el-row @click="startSession(scope.row)">
-                  <el-col :span="6">
-                    <img :src="scope.row.toHeader" alt="" />
-                  </el-col>
-                  <el-col :span="18">
-                    <span>{{ scope.row.toUserName }}</span>
-                  </el-col>
-                </el-row>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
+        <chat-session :sessionList="sessionList" @startSession="startSession" :curSessionId="curSessionId"></chat-session>
       </section>
+      <!-- 好友申请 -->
       <section :class="curIndex===1?'show':''">
-        <div class="newFriend">
-          <el-table v-if="newFriendList.length != 0" :show-header="false" :data="newFriendList" style="width: 100%">
-            <el-table-column>
-              <template v-slot="scope">
-                <!-- 开始创建会话，将选中的好友对象作为参数进行传递 -->
-                <el-row @click="userClick(scope.row)">
-                  <el-col :span="5">
-                    <img :src="scope.row.header" alt="" />
-                  </el-col>
-                  <el-col :span="11">
-                    <span>{{ scope.row.username }}</span>
-                    <span>{{ scope.row.content }}</span>
-                  </el-col>
-                  <el-col class="btn" :span="7">
-                    <el-button type="primary">同意</el-button>
-                    <el-button type="primary">拒绝</el-button>
-                  </el-col>
-                </el-row>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
+        <chat-friend :newFriendList="newFriendList" :curUserId="curUserId" @refresh="getNewFriendList"></chat-friend>
       </section>
+      <!-- 好友列表 -->
       <section :class="curIndex===2?'show':''">
-        <div class="friend">
-          <el-table v-if="friendList.length != 0" :show-header="false" :data="friendList" style="width: 100%">
-            <el-table-column>
-              <template v-slot="scope">
-                <!-- 开始创建会话，将选中的好友对象作为参数进行传递 -->
-                <el-row @click="createSession(scope.row)">
-                  <el-col :span="6">
-                    <img :src="scope.row.header" alt="" />
-                  </el-col>
-                  <el-col :span="18">
-                    <span>{{ scope.row.username }}</span>
-                  </el-col>
-                </el-row>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
+        <chat-friend-list :friendList="friendList" @createSession="createSession"></chat-friend-list>
       </section>
     </el-aside>
     <el-container>
       <el-header>{{ curSessionUserName }}</el-header>
       <!--消息窗口-->
       <el-main ref="message">
-        <div class="msg" v-for="(item, i) in msgList" :key="i">
-          <!-- 判断消息是否为当前用户发送的，是则在右边显示，否则左边显示 -->
-          <img v-if="item.fromUserId === curUserId" class="rShow" :src="curHeader" />
-          <img v-else :src="toHeader" alt="" />
-          <div :class="item.fromUserId === curUserId ? 'msg_right' : 'msg_left'">
-            <span v-if="item.contentType === 0">{{ item.content }}</span>
-            <img v-else-if="item.contentType === 1" class="chatImg" :src="'http://localhost:1997/mimg/' + item.content" alt="" />
-          </div>
-        </div>
+        <chat-message :msgList="msgList" :curUserId="curUserId" :curHeader="curHeader" :toHeader="toHeader"></chat-message>
       </el-main>
       <el-footer>
         <!-- 将需要发送的信息存储 -->
@@ -112,23 +41,35 @@
 </template>
 
 <script>
-import Login from "common/Login";
 import Emoji from "content/Emoji";
 import {
   getFriendList,
-  getNewFriendList
-} from "@/network/user";
+  getNewFriendList,
+  unReadCount,
+  clearApply
+} from "@/network/ajax";
+
+
 import {
   createSession,
   getSessionAlready,
   getMsgList,
 } from "@/network/websocket";
 
+import ChatMenu from './child/ChatMenu'
+import ChatFriend from './child/ChatFriend'
+import ChatMessage from './child/ChatMessage'
+import ChatSession from './child/ChatSession'
+import ChatFriendList from './child/ChatFriendList'
 export default {
   name: "Chat",
   components: {
-    Login,
     Emoji,
+    ChatMenu,
+    ChatFriend,
+    ChatMessage,
+    ChatSession,
+    ChatFriendList
   },
   data() {
     return {
@@ -139,29 +80,18 @@ export default {
       curSessionId: "", //当前会话Id
       toHeader: "", //当前对方头像
       textarea: "", //将要发送的消息
-      session_yes: [], //已经建立的会话
-      session_no: [], //还未建立的会话
+      sessionList: [], //已经建立的会话
       friendList: [], //好友列表,
-      newFriendList: [],//申请好友列表
+      newFriendList: [], //申请好友列表
       msgList: [], //消息列表
-      fileList: [],//上传的文件
+      fileList: [], //上传的文件
       paramsImg: {
         id: "",
         fromUserId: "",
-      },//发图片需要携带的参数
+      }, //发图片需要携带的参数
       curIndex: 0, //显示哪个菜单
-      iconList: [{
-          'icon': 'icon-pinglun4'
-        },
-        {
-          'icon': 'icon-tianjiahaoyou'
-        },
-        {
-          'icon': 'icon-biaoqing1'
-        },
-      ],
-      comValue: '', //未读聊天数
-      newValue: '', //未读好友申请数
+      cValue: '', //未读聊天数
+      fValue: '', //未读好友申请数
     };
   },
   watch: {
@@ -176,53 +106,68 @@ export default {
       deep: true,
     },
   },
-  computed:{
-    unReadValue(){
-      return function(value){
-        let newValue='';
-        switch(value){
-          case 0:newValue=this.comValue;break;
-          case 1:newValue=this.newValue;break;
-        }
-        return newValue;
-      }
-    }
-  },
   created() {
+    //初始化登录者信息
     let user = JSON.parse(this.$store.state.user);
-    // console.log(user);
     this.curUserName = user.username;
     this.curUserId = user.id;
     this.curHeader = user.header;
 
+    //初始化websocket链接
     this.initWebSocket(this.curUserId, 9999);
-    this.getFriendList(this.curUserId);
-    this.getNewFriendList(this.curUserId);
+
+    //初始化未读消息
+    this.unReadCount()
+
+    //          
+    this.getSessionListAlready();
   },
   methods: {
+    unReadCount() {
+      unReadCount(this.curUserId).then(res => {
+        this.cValue = res.msgCount == 0 ? '' : res.msgCount;
+        this.fValue = res.friendCount == 0 ? '' : res.friendCount;
+      })
+    },
+    clearApply() {
+      clearApply(this.curUserId).then(res => {
+        // console.log(res);
+      })
+    },
+    //点击哪个菜单
     menuClick(index) {
       this.curIndex = index;
+      switch (index) {
+        case 0:
+          this.getSessionListAlready();
+          break;
+        case 1:
+          this.fValue = '';
+          this.clearApply();
+          this.getNewFriendList();
+          break;
+        case 2:
+          this.getFriendList();
+          break;
+      }
+    },
+    //获取已存在的会话列表
+    getSessionListAlready() {
+      getSessionAlready(this.curUserId).then((res) => {
+        this.sessionList = res;
+      });
     },
     //好友请求列表
-    getNewFriendList(curUserId) {
-      getNewFriendList(curUserId).then((res) => {
-        // console.log(res);
+    getNewFriendList() {
+      getNewFriendList(this.curUserId).then((res) => {
         this.newFriendList = res;
       });
     },
-    //开始建立会话与好友交流
-    userClick(user) {
-      let userData = {
-        id: user.uid,
-        username: user.username,
-        header: user.header,
-      };
-      this.$store.commit("curUser", userData);
-      this.$router.push({
-        path: "/article",
-        query: {
-          id: user.uid,
-        },
+    //获取好友列表,需要传入当前登录用户的ID
+    getFriendList() {
+      getFriendList(this.curUserId).then((res) => {
+        // console.log(res);
+        this.friendList = res;
       });
     },
     //初始化websocket
@@ -243,11 +188,15 @@ export default {
     },
     websocketonmessage(e) {
       let data = JSON.parse(e.data);
-      console.log(data);
+      this.unReadCount();//获取未读数
+      this.getSessionListAlready();//刷新会话列表显示未读数
       if (data instanceof Array) {
-        this.session_yes = data;
-      } else {
+        this.sessionList = data;
+      } else if (data != null) {
         switch (data.contentType) {
+          case 0:
+            this.msgList.push(data);
+            break;
           case 1:
             this.msgList.push(data);
             break;
@@ -267,47 +216,35 @@ export default {
       }
       console.log("websocket关闭");
     },
-    //获取好友列表,需要传入当前登录用户的ID
-    getFriendList(curUserId) {
-      getFriendList(curUserId).then((res) => {
-        this.friendList = res;
-        // console.log(res);
-        // console.log(this.friendList);
-        this.getSessionListAlready();
-      });
-    },
+
     //创建会话，点击好友时，需要获取当前用户id，好友id，好友名字
     createSession(friend) {
-      createSession(friend, this.curUserId, this.curUserName).then((res) => {
+      createSession(friend, this.curUserId).then((res) => {
         this.getSessionListAlready();
       });
     },
     //开始会话
     startSession(session) {
+      // console.log(session);
       this.curSessionId = session.id;
       this.curSessionUserName = session.toUserName;
       this.toHeader = session.toHeader;
       this.paramsImg.id = this.curSessionId;
       this.paramsImg.fromUserId = this.curUserId;
+
       if (this.websock != undefined) {
         this.websock.close();
       }
       this.initWebSocket(this.curUserId, this.curSessionId);
-      this.getMsgList(this.curSessionId);
-    },
-    //获取已存在的会话列表
-    getSessionListAlready() {
-      getSessionAlready(this.curUserId).then((res) => {
-        this.session_yes = res;
-        // console.log(res);
-      });
+      this.getMsgList(this.curSessionId);//获取消息列表
+      this.getSessionListAlready();//重新刷新会话列表
+      this.cValue = this.cValue - session.unReadCount;
     },
     //获取当前会话的历史消息
     getMsgList(sessionId) {
       //sessionId和curSessionId一样
       getMsgList(sessionId).then((res) => {
         this.msgList = res;
-        // console.log(res);
       });
     },
     //文本消息发送
@@ -355,7 +292,7 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
-  box-shadow: 0 5px 10px #ccc;
+  // box-shadow: 0 5px 10px #ccc;
 }
 
 // 不显示滚动条
@@ -380,7 +317,6 @@ export default {
 .el-footer {
   width: 100%;
   height: 200px;
-  line-height: 50px;
   padding: 0;
   position: relative;
   box-shadow: 0 5px 10px #ccc;
@@ -390,6 +326,7 @@ export default {
   line-height: 60px;
 }
 
+//菜单右侧的宽度
 .el-aside {
   width: 300px;
   background-color: #402e58;
@@ -405,11 +342,12 @@ export default {
 //右侧内容
 .el-container {
   width: 95%;
+  min-width: 500px;
   height: 96vh;
   overflow-y: hidden;
 }
 
-@menuWidth: 50px;
+@menuWidth: 60px;
 
 .content {
   margin-left: @menuWidth;
@@ -431,180 +369,6 @@ export default {
     .show {
       display: block;
     }
-  }
-}
-
-//左侧菜单
-.menu {
-  width: @menuWidth;
-  height: 96vh;
-  background-color: #35244e;
-  position: absolute;
-
-  .el-badge {
-    --el-badge-radius: 50%;
-    --el-badge-padding: 0px;
-    --el-badge-size: 10px;
-    text-align: center;
-  }
-
-  :deep(.el-badge__content.is-fixed) {
-    transform: translate(75%, -50%);
-  }
-
-  header {
-    position: relative;
-    background-color: blue;
-
-    img {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      left: 50%;
-      transform: translate(-50%);
-    }
-  }
-
-  nav {
-    position: relative;
-    top: 40px;
-    overflow: hidden;
-
-    ul {
-      width: 100%;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      .active {
-        box-sizing: border-box;
-        border-left: 3px solid blue;
-        color: #ffff;
-        background-color: #3f2e58;
-      }
-
-      li {
-        width: 100%;
-
-        i {
-          font-size: 30px;
-          margin: 10px 0;
-
-        }
-      }
-    }
-
-    .el-icon {
-      width: 100%;
-      box-sizing: border-box;
-      pointer-events: none;
-      color: #6A5983;
-    }
-  }
-}
-
-//已创建的会话
-.session,
-.friend {
-  .el-row {
-    background-color: #402e58;
-    overflow-x: hidden;
-
-    img {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      display: block;
-      padding: 5px;
-      pointer-events: none;
-    }
-
-    span {
-      line-height: 40px;
-      color: #ffff;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    &:hover {
-      background-color: #493664;
-    }
-  }
-}
-
-//消息窗口
-.msg {
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 30px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  img {
-    display: block;
-    width: 60px;
-    height: 60px;
-  }
-
-  .chatImg {
-    display: block;
-    width: 200px;
-    height: 200px;
-  }
-
-  .msg_left,
-  .msg_right {
-    background-color: #FEFEFE;
-    padding: 10px;
-  }
-
-  .msg_left {
-    float: left;
-    margin-top: -58px;
-    margin-left: 80px;
-  }
-
-  .msg_left::before {
-    content: "";
-    position: absolute;
-    left: 65px;
-    width: 0;
-    height: 0;
-    border-color: transparent #ffffff transparent transparent;
-    border-style: solid;
-    border-width: 8px 18px 8px 0;
-  }
-
-  .msg_right {
-    float: right;
-    margin-top: -58px;
-    margin-right: 9%;
-  }
-
-  .msg_right::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 0;
-    top: 15px;
-    right: 8%;
-    border-color: transparent transparent transparent #ffffff;
-    border-style: solid;
-    border-width: 8px 0 8px 18px;
-  }
-
-  .rShow {
-    position: relative;
-    left: 92%;
   }
 }
 
@@ -630,50 +394,10 @@ export default {
     position: absolute;
     top: -315px;
     left: 0;
-  }
-}
-
-//新朋友
-.newFriend {
-  width: 100%;
-
-  .el-row {
-    color: #fff;
-    background-color: #493664;
-  }
-
-  .el-col {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 12px;
-    user-select: none;
-
-    span:nth-child(2) {
-      color: #ccc;
-    }
-
-    img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      padding: 5px;
+    &:hover{
+      display: block;
     }
   }
-
-  .btn {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-
-    .el-button {
-      width: 45px;
-      height: 25px;
-      font-size: 14px;
-    }
-  }
-
 }
 
 //el-row底部白线问题

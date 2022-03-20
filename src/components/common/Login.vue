@@ -51,6 +51,7 @@ export default {
         }
       }
       this.$store.commit('loginUser',this.userData);
+      this.$store.commit('curUser',this.userData);
       // let user = this.$store.getters.getUser;
       // this.$emit('handLogin', this.userData)
     }

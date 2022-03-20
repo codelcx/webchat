@@ -1,56 +1,72 @@
 <template>
-<div class='NavBar'>
-  <div class="logo">起源</div>
-  <div class="demo-tabs">
-    <div :class="curIndex==index?'select':''" class="item" v-for="(item,index) in tabList" :key="index" @click="tabClick(item,index)">{{item.lable}}</div>
-  </div>
-  <div class="user">
-    <div class="btn" v-if="!isUser">
-      <div @click="login">登录</div>
+  <div class="NavBar">
+    <div class="logo">起源</div>
+    <div class="demo-tabs">
+      <div
+        :class="curIndex == index ? 'select' : ''"
+        class="item"
+        v-for="(item, index) in tabList"
+        :key="index"
+        @click="tabClick(item, index)"
+      >
+        {{ item.name }}
+      </div>
     </div>
-    <div v-else class="self">
-      <img :src="headerImg" alt="">
+    <div class="user">
+      <div class="btn" v-if="!isUser">
+        <div @click="login">登录</div>
+      </div>
+      <div v-else class="self">
+        <img :src="headerImg" alt="" />
+      </div>
+    </div>
+    <div class="menu">
+      <menus @reIndex="reIndex"></menus>
     </div>
   </div>
-  <div class="menu">
-    <menus></menus>
-  </div>
-
-</div>
 </template>
 
 <script>
-import Menus from 'common/Menu'
+import Menus from "content/Menu";
 export default {
-  name: 'NavBar',
+  name: "NavBar",
   components: {
     Menus,
   },
+  props: ["index"],
   data() {
     return {
-      curUser: '',
+      curUser: "",
       isUser: false,
       curIndex: 0,
-      tabList: [{
-          lable: '社区',
-          path: '/social'
+      tabList: [
+        {
+          name: "社区",
+          path: "/social",
         },
         {
-          lable: '聊天',
-          path: '/chat'
+          name: "聊天",
+          path: "/chat",
         },
         {
-          lable: '我的',
-          path: '/person',
+          name: "我的",
+          path: "/person",
         },
-      ]
-    }
+      ],
+    };
+  },
+  watch: {
+    index: {
+      handler(val) {
+        this.curIndex=val;
+      },
+    },
   },
   computed: {
     headerImg() {
       let user = JSON.parse(this.$store.state.user);
       return user.header;
-    }
+    },
   },
   created() {
     let user = JSON.parse(this.$store.state.user);
@@ -58,31 +74,46 @@ export default {
       this.isUser = !this.isUser;
     }
   },
-  // mounted(){
-  //   this.$nextTick(()=>{
-  //         let user = JSON.parse(this.$store.state.user);
-  //   this.curUser = user;
-  //   console.log(this.curUser);
-  //   })
-  // },
+  mounted() {
+    //刷新后无法保持导航栏之前的选中状态
+    switch (this.$route.name) {
+      case "social":
+        this.curIndex = 0;
+        break;
+      case "chat":
+        this.curIndex = 1;
+        break;
+      case "article":
+        this.curIndex = 2;
+        break;
+      case "album":
+        this.curIndex = 2;
+        break;
+    }
+  },
   methods: {
     tabClick(item, index) {
       this.curIndex = index;
-      if (item.path == '/person') {
+      // this.$emit("curIndexClick", this.curIndex);
+      if (item.path == "/person") {
         let user = JSON.parse(this.$store.state.user);
-        this.$store.commit('curUser', user);
+        this.$store.commit("curUser", user);
         this.$router.push({
-          path: '/article',
+          path: "/article",
           query: {
-            id: user.id
-          }
-        })
+            id: user.id,
+          },
+        });
       } else {
         this.$router.push(item.path);
       }
-    }
-  }
-}
+    },
+    //点击退出登录时将导航栏选中为第一个
+    reIndex() {
+      this.curIndex = 0;
+    },
+  },
+};
 </script>
 
 <style lang="less" scoped>
@@ -113,7 +144,12 @@ export default {
     cursor: pointer;
 
     .textLinear();
-    background-image: linear-gradient(to top, #bdc2e8 0%, #bdc2e8 1%, #e6dee9 100%);
+    background-image: linear-gradient(
+      to top,
+      #bdc2e8 0%,
+      #bdc2e8 1%,
+      #e6dee9 100%
+    );
   }
 
   .demo-tabs {
@@ -123,7 +159,7 @@ export default {
     justify-content: flex-start;
     align-items: center;
     user-select: none;
-    // background-color: red; 
+    // background-color: red;
 
     font-size: @font-size;
   }
@@ -133,12 +169,10 @@ export default {
     cursor: pointer;
     .textLinear();
     background-image: linear-gradient(to right, #b721ff 0%, #21d4fd 100%);
-
   }
 
   .select {
     background-image: linear-gradient(to right, #9be15d 0%, #00e3ae 100%);
-
   }
 
   .user {
@@ -150,26 +184,31 @@ export default {
     position: relative;
     cursor: pointer;
 
-    &:hover+.menus {
+    &:hover + .menu {
       display: block;
+      z-index: 9999;
     }
 
     .btn {
       cursor: pointer;
       .textLinear();
-      background-image: linear-gradient(-225deg, #69EACB 0%, #EACCF8 48%, #6654F1 100%);
+      background-image: linear-gradient(
+        -225deg,
+        #69eacb 0%,
+        #eaccf8 48%,
+        #6654f1 100%
+      );
     }
 
     .self::after {
-      content: '';
+      content: "";
       position: absolute;
       top: 50%;
       height: 0;
       width: 0;
       border-style: solid;
-      border-color: #757B8C transparent transparent transparent;
+      border-color: #757b8c transparent transparent transparent;
       border-width: 6px 6px 0 6px;
-
     }
 
     img {
@@ -178,7 +217,7 @@ export default {
       border-radius: 50%;
     }
 
-    &:hover+.menu {
+    &:hover + .menu {
       display: block;
     }
   }
@@ -194,6 +233,5 @@ export default {
       display: block;
     }
   }
-
 }
 </style>

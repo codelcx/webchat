@@ -75,14 +75,14 @@ export default {
 
   .el-badge {
     --el-badge-radius: 50%;
-    --el-badge-padding: 0px;
+    --el-badge-padding: 5px 0;
     --el-badge-size: 10px;
-    text-align: center;
+    text-align: left;
   }
 
-  :deep(.el-badge__content.is-fixed) {
-    transform: translate(75%, -50%);
-  }
+  // :deep(.el-badge__content.is-fixed) {
+  //   transform: translate(75%, -50%);
+  // }
 
   header {
     position: relative;
@@ -118,6 +118,7 @@ export default {
       .active {
         box-sizing: border-box;
         border-left: 3px solid blue;
+        border-right: 3px solid transparent;
         color: #ffff;
         background-color: #3f2e58;
       }
@@ -135,9 +136,11 @@ export default {
 
     .el-icon {
       width: 100%;
+      position: relative;
       box-sizing: border-box;
       pointer-events: none;
       color: #6A5983;
+
     }
   }
 }

@@ -1,37 +1,51 @@
 <template>
-<div class='Social'>
-  <div class="show">
-    <essay v-for="(item,index) in articleList" :key="index" :article="item"></essay>
+  <div class="Social">
+    <el-scrollbar height="96vh" ref="scrollbar" @scroll="scroll">
+      <sen-msg @getNewAllArticle="getAllArticle"></sen-msg>
+      <div class="show">
+        <essay v-for="item in articleList" :key="item" :article="item"></essay>
+      </div>
+    </el-scrollbar>
   </div>
-</div>
 </template>
 
 <script>
-import {
-  getAllArticle
-} from '@/network/social'
-import Essay from 'content/Article'
+import { getAllArticle } from "@/network/ajax";
+import Essay from "content/Article";
+import SenMsg from "content/SenMsg";
 export default {
-  name: 'Social',
+  name: "Social",
   components: {
-    Essay
+    Essay,
+    SenMsg,
   },
-  data(){
-    return{
-      articleList:[]
-    }
+  data() {
+    return {
+      articleList: [],
+      textarea: "",
+      scrollTop: 0,
+    };
   },
   created() {
-    this.getAllArticle()
+    this.getAllArticle();
   },
+
+  //回到该页面时保留离开该页面时滚动的位置
+  updated() {
+    this.$refs.scrollbar.setScrollTop(this.scrollTop);
+  },
+
   methods: {
     getAllArticle() {
-      getAllArticle().then(res => {
-        this.articleList = res
-      })
+      getAllArticle().then((res) => {
+        this.articleList = res.reverse();
+      });
     },
-  }
-}
+    scroll({ scrollTop }) {
+      this.scrollTop = scrollTop;
+    },
+  },
+};
 </script>
 
 <style scoped>

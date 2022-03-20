@@ -1,6 +1,6 @@
 import request from './request'
 
-export function createSession(friend, curUserId, curUserName) {
+export function createSession(friend, curUserId) {
   return request({
     url: '/createSession',
     method: 'get',

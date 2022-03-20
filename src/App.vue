@@ -12,11 +12,7 @@
 </template>
 
 <script>
-import NavBar from 'common/NavBar'
 export default {
-  components: {
-    NavBar,
-  },
   mounted() {
     this.startDraw()
   },

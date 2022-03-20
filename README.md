@@ -118,8 +118,11 @@ color:transparent;
 - 父子元素点击事件冲突
 @cliclk.stop="childClick"
 
-- 局部元素滚动阻止页面的滚动
+- 内部元素滚动至底部边缘时影响外部元素的滚动
+
+内部元素设置
 overscroll-behavior:none
+overflow-y:scroll
 
 - el-upload上传图片有大有小如何进行统一？
 ```
@@ -164,6 +167,44 @@ this.$refs.icon.$el.click()
     console.log(this.curIndex);
   },
 ```
+
+- 路由跳转携带参数为对象
+不能直接传递对象需要使用JSON.stringfy转换为字符串
+取得时候JSON.parse转换为JSON对象
+
+一般使用parmas传参，与query不同的是使用name而不是path
+```
+{
+  name:'complaint;,
+  path:'/complaint/:data',//参数显示url，刷线页面数据不丢失
+  compontent:Complaint
+}
+
+this.$router.push({
+  name:'complaint',
+  params: {
+    data:JSON.stringify(article)
+  },
+});
+```
+- 循环不建议使用index为key
+如果以index为key，则数组发生更改时，下标会发生相应的更改，要是数组末尾更改则无所谓
+要是发生在数组中必然引起元素与原来下标不同，最终会更新因key不同的元素
+
+- arry.push对象时发生覆盖
+该方法时将对象的地址保存在数组里
+解决方式：将对象作为临时变量
+```
+let list=[]
+let data={}
+for (let key in res) {
+  //let data={} 临时变量
+  data.time = key;
+  data.srcList = res[key];
+  list.push(data);
+}
+```
+
 ### 未解决
 - 粘性定位生效的条件
 - 容器设置flex与相对定位，其中的span绝对定位，但是却不是根据容器进行定位

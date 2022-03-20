@@ -13,6 +13,7 @@ export default {
   methods:{
     exitLogin(){
       sessionStorage.clear();
+      this.$emit('reIndex');
       this.$router.push('/login');
     }
   }

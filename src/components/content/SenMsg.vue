@@ -4,7 +4,7 @@
     <el-input class="area" v-model="textarea" :autosize="{ minRows: 3, maxRows: 8 }" type="textarea" placeholder="分享趣事" resize="none" />
   </div>
   <div class="imgwall">
-    <el-upload :style="{ display: isFileShow }" ref="file" action="#" :auto-upload="false" list-type="picture-card" :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :on-change="handleChange" :file-list="fileList">
+    <el-upload :multiple="true" :style="{ display: isFileShow }" ref="file" action="#" :auto-upload="false" list-type="picture-card" :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :on-change="handleChange" :file-list="fileList">
       <el-icon ref="icon">
         <Plus />
       </el-icon>
@@ -31,7 +31,7 @@ import Emoji from "content/Emoji";
 import {
   publishArticle,
   publishArticleText
-} from "@/network/social";
+} from "@/network/ajax";
 export default {
   components: {
     Emoji,
@@ -83,7 +83,7 @@ export default {
     //文件状态改变时，添加、上传成功失败均会调用
     handleChange(file, fileList) {
       this.fileList = fileList;
-      console.log(file, fileList);
+      // console.log(file, fileList);
       if (this.fileList != []) {
         this.isFileShow = "block";
       }
@@ -128,7 +128,7 @@ export default {
             this.textarea = "";
             this.fileList = [];
             this.isFileShow = "none";
-            this.$emit('getNewAllArticle');
+            this.$emit('getNewAllArticle');//重新获取数据
           });
         }
       }
@@ -143,7 +143,6 @@ export default {
 .SenMsg {
   position: relative;
   margin-bottom: 20px;
-  overscroll-behavior: none;
   cursor: pointer;
   background-color: #ffff;
   z-index: 99;
@@ -157,6 +156,7 @@ export default {
   &:focus {
     border-color: #ff8200;
   }
+
 }
 
 //照片墙
@@ -216,6 +216,7 @@ export default {
   background-color: #f0f1f4;
   border-radius: 12px;
   box-sizing: border-box;
+  overscroll-behavior: none;
 
   &:focus {
     border: 1px solid #ff8200;
