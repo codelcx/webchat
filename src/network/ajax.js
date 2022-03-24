@@ -69,9 +69,12 @@ export function addFriend(uid, fid,flag) {
 
 //2.与社区相关的请求
 //获取所有文章
-export function getAllArticle() {
+export function getAllArticle(id) {
   return request({
-    url:'/allArticle'
+    url: '/allArticle',
+    params:{
+      id
+    }
   })
 }
 
@@ -80,7 +83,7 @@ export function getArticleById(curUserId) {
   return request({
     url: '/allArticleById',
     params: {
-      id:curUserId
+      id:Number(curUserId)
     }
   })
 }
@@ -113,6 +116,39 @@ export function getPhotoGraph(uid) {
     params: {
       uid
     }
+  })
+}
+
+
+//点赞
+export function thumbUp(data) {
+  return request({
+    url: '/thumbUp',
+    params: {
+      uid:data.uid,
+      aid:data.aid,
+      state:data.state
+    }
+  })
+
+}
+//获取文章的所有评论
+export function comment(aid) {
+  return request({
+    url: '/comment',
+    params: {
+      aid:Number(aid)
+    }
+  })
+}
+
+//发表评论
+export function senComment(data) {
+  return request({
+    url: '/senComment',
+    method:'post',
+    headers:{'Content-Type':'application/json;charset=utf-8'},
+    data:JSON.stringify(data)
   })
 }
 

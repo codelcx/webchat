@@ -55,6 +55,7 @@ export default {
     // console.log(this.complaint);
   },
   updated() {
+    console.log('updated');
     this.checkTag = [];//退出又回来时依旧保存上次的操作
     this.user = JSON.parse(this.$store.state.user);
     this.complaint = JSON.parse(window.sessionStorage.getItem('complaint'));

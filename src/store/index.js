@@ -8,7 +8,7 @@ export default createStore({
   },
   getters: {
     getUser(state) {
-      return state.user;
+      return JSON.parse(state.user);
     },
     getCurUser(state) {
       return state.curUser;

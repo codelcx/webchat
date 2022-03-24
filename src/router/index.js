@@ -3,13 +3,16 @@ const Login = ()=>import('common/Login')
 
 const Home = () =>import('views/home/Home')
 
-const Complaint = () =>import('content/Complaint')
+
 
 const Person =()=>import('views/person/Person')
 const Article =()=>import('views/person/child/Articles')
 const Album = () => import('views/person/child/Albums')
 
 const Social = () => import('views/social/Social')
+const Complaint = () => import('views/social/child/Complaint')
+const Comment = () => import('views/social/child/Comment')
+
 const Chat =()=>import('views/chat/Chat')
 
 const routes = [
@@ -63,6 +66,11 @@ const routes = [
     name:'complaint',
     path: '/complaint',
     component:Complaint
+  },
+  {
+    name: 'comment',
+    path: '/comment',
+    component:Comment
   }
 ]
 

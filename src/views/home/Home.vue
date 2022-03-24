@@ -2,7 +2,7 @@
 <div class="Home">
   <!-- <el-scrollbar height="96vh" ref="scrollbar"> -->
   <nav-bar :index="curIndex"></nav-bar>
-  <router-view v-slot="{ Component }">
+  <router-view v-if="isRouterAlive" v-slot="{ Component }">
     <transition>
       <keep-alive exclude="Chat,Person">
         <component :is="Component" />
@@ -20,9 +20,15 @@ export default {
   components: {
     NavBar,
   },
+  provide() {
+    return {
+      reload: this.reload
+    }
+  },
   data() {
     return {
       curIndex: 0,
+      isRouterAlive: true
     };
   },
   watch: {
@@ -46,6 +52,14 @@ export default {
       },
     },
   },
+  methods: {
+    reload() {
+      this.isRouterAlive = false;
+      this.$nextTick(function () {
+        this.isRouterAlive = true;
+      })
+    }
+  }
 };
 </script>
 

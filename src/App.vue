@@ -13,6 +13,7 @@
 
 <script>
 export default {
+  name: 'App',
   mounted() {
     this.startDraw()
   },
@@ -33,7 +34,8 @@ export default {
         context.fillStyle = "hsla(200,100%,50%,.6)";
         context.fill();
       }
-    }
+    },
+
   }
 };
 </script>

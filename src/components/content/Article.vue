@@ -1,6 +1,6 @@
 <template>
 <div class="Article">
-  <el-card shadow="hover">
+  <el-card shadow="hover" class="container">
     <div class="top">
       <img :src="article.header" alt="" @click="userClick(article)" />
       <span>{{ article.username }}</span>
@@ -22,8 +22,8 @@
       </el-card>
     </div>
     <div class="middle">
-      <div class="text" ref="text">
-        <div :class="{ hide: !isShow }">
+      <div :class="{text:commentShow}" ref="text">
+        <div :class="{ hide: !isShow}">
           <span class="btnShow" @click="showInfo" v-if="!isShow">展开</span>
           {{ article.articleText }}
           <span @click="showInfo" v-if="isHide">收起</span>
@@ -41,47 +41,64 @@
         <span v-if="srcList.length > 6">+{{ srcList.length - 6 }}</span>
       </div>
     </div>
-    <div class="bottom">
+    <div class="bottom" v-if="commentShow">
       <div class="ico" @click="zan">
         <i class="iconfont icon-dianzan_huaban" :class="{active:isZan}"></i>
-        <span>1w</span>
+        <span>{{tCount}}</span>
       </div>
-      <div class="ico" @click="comment">
-        <i class="iconfont icon-pinglun"> </i>
-        <span>1w</span>
+      <div class="ico" @click="comment(article)">
+        <i class="iconfont icon-pinglun"></i>
+        <span>{{cCount}}</span>
       </div>
     </div>
-    <!-- <div v-html="content" class="con"></div> -->
+
   </el-card>
 </div>
 </template>
 
 <script>
+import {
+  thumbUp
+} from '@/network/ajax'
 export default {
   name: "Article",
-  props: ['article'],
+  props: ['article', 'isThumbUp'],
   data() {
     return {
       curUser: "", //主页的拥有者
+      articleItem: null,
       srcList: [],
       curIndex: 1, //当前点击的图片
       isShow: true, //默认展开
       isHide: false, //默认不显示展开
       isMenuShow: false, //默认不显示菜单
       isReport: true, //是否举报
-      isSelf: false,//是不是自己
-      isZan:false,//是否点赞
+      isSelf: false, //是不是自己
+      isZan: false, //是否点赞
+      tCount: 0,
+      cCount: 0,
       tagName: ["svg", 'path'],
     };
+  },
+  watch: {
+    article: {
+      handler(val) {
+        this.srcList = val.articleImgList;
+      }
+    }
   },
 
   created() {
     //判断传过来的文章中是否有图片
+    this.isZan = this.isThumbUp;
+    this.tCount = this.article.tcount;
+    this.cCount = this.article.ccount;
     if (this.article.articleImgList != null) {
       this.srcList = this.article.articleImgList;
     }
 
     document.addEventListener('click', e => {
+      //点击以外地方隐藏
       if (this.tagName.indexOf(e.target.tagName) == -1) {
         this.isMenuShow = false;
       }
@@ -92,6 +109,10 @@ export default {
       let loginUser = JSON.parse(this.$store.state.user);
       return loginUser;
     },
+    commentShow() {
+      let flag = this.$route.path == '/comment' ? false : true;
+      return flag;
+    }
   },
   mounted() {
     // let el = document.querySelector('.text');
@@ -134,23 +155,34 @@ export default {
       });
     },
     complaint(article) {
+      //页面刷新参数会消失
       window.sessionStorage.setItem("complaint", JSON.stringify(article));
       this.$router.push({
         name: "complaint",
         // path: "/complaint",
       });
     },
-    zan(){
-      this.isZan=!this.isZan;
-      let data={
-        uid:this.loginUser.id,
-        aid:this.article.id,
-        state:this.isZan,
+    zan() {
+      this.isZan = !this.isZan;
+      this.tCount = this.isZan ? this.tCount + 1 : this.tCount - 1;
+      let data = {
+        uid: this.loginUser.id,
+        aid: this.article.id,
+        state: Number(this.isZan)
       }
       console.log(data);
+      thumbUp(data).then(res => {
+        console.log(res);
+      })
     },
-    comment(){
-      console.log(this.article);
+    comment(article) {
+      window.sessionStorage.setItem("comment", JSON.stringify(article));
+      this.$router.push({
+        path: '/comment',
+        query: {
+          aid: article.id
+        }
+      });
     }
   },
 };
@@ -169,11 +201,16 @@ export default {
 .el-card {
   margin-bottom: 20px;
   position: relative;
-  border-radius: 2%;
+  border-radius: 1%;
+}
+
+.container {
+  width: 100%;
 }
 
 //顶部头像、事件、举报
 .top {
+  width: 100%;
   position: relative;
 
   img {
@@ -319,12 +356,12 @@ export default {
   margin-left: 0.5%;
 }
 
-.middle .img .el-image:nth-child(3n){
-  margin-right:20%
+.middle .img .el-image:nth-child(3n) {
+  margin-right: 20%
 }
 
 :deep(.middle .el-image-viewer__canvas) {
-  transform: scale(1.6);
+  transform: scale(1.3);
 }
 
 :deep(.middle .el-image-viewer__actions) {
@@ -350,20 +387,22 @@ export default {
 //底部点赞、评论标签
 .bottom {
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 25px;
   cursor: pointer;
   color: #a3a3a3;
+  padding-right: 10%;
 
-  .active{
-    color:red
+  .active {
+    color: red
   }
 
   .ico {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-left: 75px;
   }
 
   .ico i {
@@ -372,7 +411,8 @@ export default {
 
   .ico span {
     font-size: 24px;
-    margin-left: 20px;
+    text-align: left;
+    padding-left: 5px;
   }
 
   i:hover {

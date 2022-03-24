@@ -1,6 +1,6 @@
 <template>
 <div class='Articles'>
-  <essay v-for="(item,index) in articleList" :key="index" :article="item"></essay>
+  <essay v-for="(item,index) in articleList" :key="index" :article="item" :isThumbUp="isThumbUp(item.id)"></essay>
 </div>
 </template>
 
@@ -16,19 +16,30 @@ export default {
   },
   data() {
     return {
-      curUserId:'',
-      articleList:[]
+      curUserId: '',
+      articleList: [],
+      thumbList: [],
+    }
+  },
+  computed: {
+    isThumbUp() {
+      return function (id) {
+        let flag = this.thumbList.indexOf(id) == -1 ? false : true;
+        return flag;
+      }
     }
   },
   created() {
-    this.curUserId=this.$route.query.id;
+    this.curUserId = this.$route.query.id;
     this.getArticleById();
   },
   methods: {
     getArticleById() {
-        getArticleById(this.curUserId).then(res => {
-        // console.log(res);
-        this.articleList = res;
+      getArticleById(this.curUserId).then(res => {
+        let data = res.data
+        this.thumbList = data.thumbUp;
+        this.articleList = data.articleList.reverse();
+
       })
     },
   }

@@ -1,7 +1,7 @@
 <template>
-<div class="Person">
+<div class="Person" >
   <el-scrollbar height="96vh" ref="scrollbar" @scroll="scroll">
-    <el-card :body-style="{ padding: 0 }">
+    <el-card :body-style="{ padding: 0 }" v-cloak>
       <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" />
       <div class="bottom">
         <div class="base">
@@ -176,6 +176,10 @@ export default {
 </script>
 
 <style scoped>
+[v-cloak] {
+  display: none!important;;
+}
+
 .box-card {
   width: 100%;
   margin-top: 6px;
