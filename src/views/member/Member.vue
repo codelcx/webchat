@@ -22,26 +22,20 @@
 
     <el-card class="nav">
       <nav>
-        <el-icon>
-          <apple />
-        </el-icon>
+        <i class="iconfont icon-pifu"></i>
         <span>聊天背景</span>
       </nav>
       <nav>
-        <el-icon>
-          <apple />
-        </el-icon>
+        <i class="iconfont icon-24gl-bubble"></i>
         <span>气泡</span>
       </nav>
       <nav>
-        <el-icon>
-          <apple />
-        </el-icon>
+        <i class="iconfont icon-touxiang"></i>
         <span>头像挂件</span>
       </nav>
     </el-card>
 
-    <background :user="user" :isMember="isMember" @dialog="centerDialogVisible"></background>
+    <background :user="user" :isMember="isMember" @dialog="centerDialogVisible=true"></background>
 
     <el-dialog v-model="centerDialogVisible" width="900px" title="会员开通">
       <el-card class="memberOpen" :body-style="{ padding: '0px' }">
@@ -74,13 +68,13 @@
 
 <script>
 import {
-  backgroundStyle
+  memberOpen
 } from '@/network/ajax'
 
 import Background from './child/Background'
 export default {
   name: "member",
-  components:{
+  components: {
     Background
   },
   data() {
@@ -126,8 +120,14 @@ export default {
     },
     memberOpen() {
       if (this.memberType == null) this.memberType = this.memberPrice[0];
-      this.$store.commit('changeMember', true);
-      this.centerDialogVisible=false;
+      memberOpen(this.user.id).then(res => {
+        if (res.code == 200) {
+          this.$store.commit('changeMember', true);
+          this.centerDialogVisible = false;
+          this.$message.success('会员已开通');
+        }
+      })
+
     }
   },
 };
@@ -248,13 +248,13 @@ export default {
     justify-content: space-around;
   }
 
-  .el-icon {
+  i {
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 50%;
     cursor: pointer;
 
-    &:hover{
+    &:hover {
       background-color: #F9F1E2;
     }
   }

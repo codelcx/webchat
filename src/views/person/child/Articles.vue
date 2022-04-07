@@ -1,6 +1,12 @@
 <template>
 <div class='Articles'>
   <essay v-for="(item,index) in articleList" :key="index" :article="item" :isThumbUp="isThumbUp(item.id)"></essay>
+  <el-card class="noArticle" v-if="articleList.length==0">
+    <el-icon>
+      <warning />
+    </el-icon>
+    <span>暂无内容</span>
+  </el-card>
 </div>
 </template>
 
@@ -22,6 +28,7 @@ export default {
     }
   },
   computed: {
+    //是否点赞
     isThumbUp() {
       return function (id) {
         let flag = this.thumbList.indexOf(id) == -1 ? false : true;
@@ -47,5 +54,11 @@ export default {
 </script>
 
 <style scoped>
-
+.noArticle {
+  width: 100%;
+  height: 600px;
+  text-align: center;
+  line-height: 600px;
+  font-size: 30px;
+}
 </style>

@@ -4,7 +4,7 @@ export default createStore({
   state: {
     user: window.sessionStorage.getItem('user'),
     curUser: window.sessionStorage.getItem('curUser'),
-    // curIndex: '',
+    room: window.sessionStorage.getItem("room")
   },
   getters: {
     getUser(state) {
@@ -13,9 +13,10 @@ export default createStore({
     getCurUser(state) {
       return state.curUser;
     },
-    // gerCurIndex(state) {
-    //   return state.curIndex;
-    // },
+    getRoom() {
+      return state.room;
+    }
+
   },
   mutations: {
     //登录者
@@ -28,10 +29,26 @@ export default createStore({
       state.curUser = JSON.stringify(palyload);
       window.sessionStorage.setItem('curUser', JSON.stringify(palyload));
     },
-    //导航栏
-    // curIndex(state,palyload) {
-    //   state.curIndex = palyload;
-    // },
+    //点击的房间
+    room(state, palyload) {
+      state.room = JSON.stringify(palyload);
+      window.sessionStorage.setItem('room', JSON.stringify(palyload));
+    },
+    //背景更改
+    changeBackground(state, palyload) {
+      let u = JSON.parse(state.user)
+      u.chatBackground = palyload;
+      state.user = JSON.stringify(u);
+      window.sessionStorage.setItem('user', JSON.stringify(u));
+    },
+    //会员
+    changeMember(state, palyload) {
+      let u = JSON.parse(state.user)
+      u.member = palyload;
+      state.user = JSON.stringify(u);
+      window.sessionStorage.setItem('user', JSON.stringify(u));
+
+    }
   },
   actions: {
   },

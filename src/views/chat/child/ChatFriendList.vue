@@ -7,7 +7,7 @@
           <!-- 开始创建会话，将选中的好友对象作为参数进行传递 -->
           <el-row @click="createSession(scope.row)">
             <el-col :span="6">
-              <img :src="scope.row.header" alt="" @click.stop="userClick(scope.row)"/>
+              <img :src="scope.row.header" alt="" @click.stop="userClick(scope.row)" />
             </el-col>
             <el-col :span="18">
               <span>{{ scope.row.username }}</span>
@@ -23,10 +23,10 @@
 <script>
 export default {
   name: 'ChatFriendList',
-  props:['friendList'],
-  methods:{
-    createSession(friend){
-      this.$emit('createSession',friend);
+  props: ['friendList'],
+  methods: {
+    createSession(friend) {
+      this.$emit('createSession', friend);
     },
     userClick(user) {
       let userData = {

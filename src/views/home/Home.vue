@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import NavBar from "content/NavBar";
+import NavBar from "views/nav/NavBar";
 export default {
   name: "Home",
   components: {
@@ -36,17 +36,20 @@ export default {
       //点击社区头像来到个人主页时导航栏并非直接更改选中
       handler(route) {
         switch (route.name) {
-          case "social":
+          case "star":
             this.curIndex = 0;
             break;
-          case "chat":
+          case "social":
             this.curIndex = 1;
             break;
-          case "article":
+          case "chat":
             this.curIndex = 2;
             break;
+          case "article":
+            this.curIndex = 3;
+            break;
           case "album":
-            this.curIndex = 2;
+            this.curIndex = 3;
             break;
         }
       },

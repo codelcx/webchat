@@ -28,6 +28,7 @@ export default {
   position: relative;
   overflow: hidden;
   margin-bottom: 30px;
+  z-index: 99;
 
   &:last-child {
     margin-bottom: 0;
@@ -51,7 +52,7 @@ export default {
   .msg_right {
     background-color: #FEFEFE;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 5px;
   }
 
   .msg_left {

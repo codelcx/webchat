@@ -23,6 +23,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - elementPlus
 - axios
 - less
+- swiper
 
 ### 配置文件vue.config.js
 - 该文件需要放在根目录下
@@ -207,7 +208,41 @@ for (let key in res) {
 - updated周期不断发送请求
 该周期中如果操作data中的数据则会不断发送请求，需要设置条件阻止
 
+- 向后台传对象时需要将代理对象进行转换
+```
+JSON.parse(JSON.stringfy(data))
+```
+
+- 文字超过最大宽度时自动换行
+```
+word-wrap:breal-word
+```
+- 图片的使用
+```
+<img src="~assets/img/xxx.png"> webpacke不处理,适用于相对路径
+```
+```
+<img :src="src"> //无法正常加载
+data(){
+  return{
+    src:"assts/img/xxx.png"
+  }
+}
+
+1、import img from ;'assets/img/xxx.png'
+2、data(){
+  return{
+    src:require("assts/img/xxx.png")
+  }
+}
+```
+```
+.bg{
+  background-img:url("~assets/img/xxx.png");//css中的使用
+}
+```
 ### 未解决
 - 页面加载时出现闪动
+- transform会导致内部文字模糊
 
 

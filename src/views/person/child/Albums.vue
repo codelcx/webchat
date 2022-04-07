@@ -7,7 +7,10 @@
       </el-image>
     </div>
   </el-card>
-
+  <el-card class="noPhoto" v-if="dataList.length==0">
+    <el-icon><warning /></el-icon>
+    <span>暂无内容</span>
+  </el-card>
 </div>
 </template>
 
@@ -58,6 +61,13 @@ export default {
 </script>
 
 <style scoped>
+.noPhoto{
+  width: 100%;
+  height: 600px;
+  text-align: center;
+  line-height: 600px;
+  font-size: 30px;
+}
 .Album {
   width: 100%;
   overflow-x: hidden;
@@ -83,9 +93,10 @@ export default {
   margin: 0 .6% 1%;
 }
 
-:deep(.el-image-viewer__img){
+:deep(.el-image-viewer__img) {
   height: 70vh;
 }
+
 :deep(.el-image-viewer__canvas) {
   transform: scale(1.6);
 }

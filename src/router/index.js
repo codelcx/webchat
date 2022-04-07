@@ -3,8 +3,6 @@ const Login = ()=>import('common/Login')
 
 const Home = () =>import('views/home/Home')
 
-
-
 const Person =()=>import('views/person/Person')
 const Article =()=>import('views/person/child/Articles')
 const Album = () => import('views/person/child/Albums')
@@ -13,7 +11,13 @@ const Social = () => import('views/social/Social')
 const Complaint = () => import('views/social/child/Complaint')
 const Comment = () => import('views/social/child/Comment')
 
-const Chat =()=>import('views/chat/Chat')
+const Chat = () => import('views/chat/Chat')
+
+const Star = () =>import('views/star/Star')
+const RoomDetail = () => import('views/star/child/RoomDetail')
+
+const Member = () => import('views/member/Member')
+
 
 const routes = [
   {
@@ -30,7 +34,12 @@ const routes = [
     children: [
       {
         path:'/home',
-        redirect: '/social',
+        redirect: '/star',
+      },
+      {
+        name:'star',
+        path: '/star',
+        component:Star
       },
       {
         name:'person',
@@ -59,7 +68,7 @@ const routes = [
         name:'chat',
         path: '/chat',
         component:Chat
-      }
+      },
     ]
   },
   {
@@ -71,7 +80,18 @@ const routes = [
     name: 'comment',
     path: '/comment',
     component:Comment
+  },
+  {
+    name: 'member',
+    path: '/member',
+    component:Member
+  },
+  {
+    name: 'room',
+    path: '/room',
+    component:RoomDetail
   }
+
 ]
 
 const router = createRouter({

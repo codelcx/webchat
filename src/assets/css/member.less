@@ -1,0 +1,94 @@
+//聊天背景图
+@background-default:'~assets/img/default.jpeg';
+@background-img1:'~assets/img/style1.jpeg';
+@background-img2:'~assets/img/style2.jpeg';
+@background-img3:'~assets/img/style3.jpeg';
+@background-img4:'~assets/img/style4.jpeg';
+@background-img5:'~assets/img/style5.jpeg';
+@background-img6:'~assets/img/style6.jpeg';
+@background-img7:'~assets/img/style7.jpeg';
+@background-img8:'~assets/img/style8.jpeg';
+@background-img9:'~assets/img/style9.jpeg';
+
+.background-same{
+  position: absolute;
+  content: '';
+  width: 70%;
+  height: 100%;
+  background-repeat:no-repeat;
+  background-size: cover;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: .6;
+}
+.background-default{
+  &::after {
+    .background-same();
+    background-image: url(@background-default);
+
+  }
+}
+.background-style1{
+  &::after {
+    .background-same();
+    background-image: url(@background-img1);
+
+  }
+}
+.background-style2{
+  &::after {
+    .background-same();
+    background-image: url(@background-img2);
+
+  }
+}
+.background-style3{
+  &::after {
+    .background-same();
+    background-image: url(@background-img3);
+
+  }
+}
+.background-style4{
+  &::after {
+    .background-same();
+    background-image: url(@background-img4);
+
+  }
+}
+.background-style5{
+  &::after {
+    .background-same();
+    background-image: url(@background-img5);
+
+  }
+}
+.background-style6{
+  &::after {
+    .background-same();
+    background-image: url(@background-img6);
+
+  }
+}
+.background-style7{
+  &::after {
+    .background-same();
+    background-image: url(@background-img7);
+
+  }
+}
+.background-style8{
+  &::after {
+    .background-same();
+    background-image: url(@background-img8);
+
+  }
+}
+.background-style9{
+  &::after {
+    .background-same();
+    background-image: url(@background-img9);
+
+  }
+}
+

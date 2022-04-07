@@ -31,3 +31,22 @@ export function getMsgList(sessionId) {
     }
   })
 }
+
+//获取房间
+export function getRoomList() {
+  return request({
+    url: '/roomList',
+  })
+}
+
+//获取房间信息
+export function getRoomMsg(roomId) {
+  return request({
+    url: '/roomMsg',
+    params: {
+      roomId
+    }
+  })
+}
+
+

@@ -1,6 +1,16 @@
 import request from './request'
 
 //1.与用户相关的请求
+//登录
+export function login(username, password) {
+  return request({
+    url: '/login',
+    params: {
+      username,
+      password
+    }
+  })
+}
 //朋友列表
 export function getFriendList(curUserId) {
   return request({
@@ -64,6 +74,37 @@ export function addFriend(uid, fid,flag) {
     }
   })
 }
+
+//推荐用户
+export function getRecommendUser(data) {
+  return request({
+    url: '/recommendUser',
+    method:'post',
+    headers:{'Content-Type':'application/json;charset=utf-8'},
+    data:JSON.stringify(data)
+  })
+}
+
+//查用户
+export function getUserById(id) {
+  return request({
+    url: '/userById',
+    params:{
+      id
+    }
+  })
+}
+
+//修改用户信息
+export function userEdit(data) {
+  return request({
+    url: '/userEdit',
+    method: 'post',
+    headers:{'Content-Type':'application/json;charset=utf-8'},
+    data:JSON.stringify(data)
+  })
+}
+
 
 //分割线--------------------------------------------------------------------------
 
@@ -184,5 +225,31 @@ export function complaint(data) {
     method: 'post',
     headers:{'Content-Type':'application/json;charset=utf-8'},
     data:JSON.stringify(data)
+  })
+}
+
+
+//分割线--------------------------------------------
+//5.会员
+
+//会员开通
+export function memberOpen(id) {
+  return request({
+    url: '/memberOpen',
+    method: 'post',
+    params: {
+      id,
+    }
+  })
+}
+//聊天背景装扮
+export function chatBackground(id,style) {
+  return request({
+    url: '/chatBackground',
+    method:'post',
+    params: {
+      id,
+      style
+    }
   })
 }

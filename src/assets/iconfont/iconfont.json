@@ -6,6 +6,55 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "4251744",
+      "name": "皮肤",
+      "font_class": "pifu",
+      "unicode": "e647",
+      "unicode_decimal": 58951
+    },
+    {
+      "icon_id": "4333455",
+      "name": "头像",
+      "font_class": "touxiang",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "5018881",
+      "name": "修改密码",
+      "font_class": "xiugaimima",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "7567704",
+      "name": "24gl-bubble",
+      "font_class": "24gl-bubble",
+      "unicode": "e93c",
+      "unicode_decimal": 59708
+    },
+    {
+      "icon_id": "10043512",
+      "name": "消息",
+      "font_class": "xinbaniconshangchuan-",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "11372668",
+      "name": "会员",
+      "font_class": "huiyuan",
+      "unicode": "e8b1",
+      "unicode_decimal": 59569
+    },
+    {
+      "icon_id": "12705237",
+      "name": "退出登录",
+      "font_class": "tuichudenglu",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
       "icon_id": "5532895",
       "name": "评论",
       "font_class": "pinglun4",

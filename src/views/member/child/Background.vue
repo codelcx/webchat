@@ -4,7 +4,7 @@
     <div class="background">
       <el-card :body-style="{ padding: '0px' }" v-for="item in list" :key="item">
         <img :src="item.src" alt="" />
-        <el-button size="large" type="success" round v-if="user.backgroundStyle == item.style">已装扮</el-button>
+        <el-button size="large" type="success" round v-if="user.chatBackground == item.style">已装扮</el-button>
         <el-button size="large" type="success" round @click="itemClick(item)" v-else>立即装扮</el-button>
       </el-card>
     </div>
@@ -13,9 +13,12 @@
 </template>
 
 <script>
+import {
+  chatBackground
+} from '@/network/ajax'
 export default {
   name: 'Background',
-  props: ['user','isMember'],
+  props: ['user', 'isMember'],
   data() {
     return {
       list: [{
@@ -60,14 +63,14 @@ export default {
   methods: {
     itemClick(item) {
       if (this.isMember) {
-        this.$store.commit('changeBackground', item.style);
+        chatBackground(this.user.id, item.style).then(res => {
+          if (res.code == 200) {
+            this.$store.commit('changeBackground', item.style);
+          }
+        })
       } else {
         this.$emit('dialog')
       }
-
-      // backgroundStyle(this.user.id, item.style).then(res => {
-      //   console.log(res);
-      // })
     },
   }
 }

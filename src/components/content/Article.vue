@@ -11,8 +11,8 @@
       <el-card v-if="isMenuShow" :body-style="{ padding: '0px' }">
         <ul v-if="article.uid != loginUser.id">
           <li @click="complaint(article)">举报</li>
-          <li @click="complaint(article)">举报</li>
-          <li @click="complaint(article)">举报</li>
+          <li @click="complaint(article)">收藏</li>
+          <li @click="complaint(article)">屏蔽该文章</li>
         </ul>
         <ul v-else>
           <li>我的</li>
@@ -145,7 +145,6 @@ export default {
         header: article.header,
       };
       //点击头像跳转到个人主页时，将导航栏选中第二个
-      // this.$store.commit("curIndex", 2);
       this.$store.commit("curUser", userData);
       this.$router.push({
         path: "/article",
@@ -199,7 +198,7 @@ export default {
 }
 
 .el-card {
-  margin-bottom: 20px;
+  margin: 6px 0;
   position: relative;
   border-radius: 1%;
 }

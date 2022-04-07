@@ -1,33 +1,27 @@
 <template>
-  <div class="NavBar">
-    <div class="logo">起源</div>
-    <div class="demo-tabs">
-      <div
-        :class="curIndex == index ? 'select' : ''"
-        class="item"
-        v-for="(item, index) in tabList"
-        :key="index"
-        @click="tabClick(item, index)"
-      >
-        {{ item.name }}
-      </div>
-    </div>
-    <div class="user">
-      <div class="btn" v-if="!isUser">
-        <div @click="login">登录</div>
-      </div>
-      <div v-else class="self">
-        <img :src="headerImg" alt="" />
-      </div>
-    </div>
-    <div class="menu">
-      <menus @reIndex="reIndex"></menus>
+<div class="NavBar">
+  <div class="logo">起源</div>
+  <div class="demo-tabs">
+    <div :class="curIndex == index ? 'select' : ''" class="item" v-for="(item, index) in tabList" :key="item" @click="tabClick(item, index)">
+      {{ item.name }}
     </div>
   </div>
+  <div class="user">
+    <div class="btn" v-if="!isUser">
+      <div @click="login">登录</div>
+    </div>
+    <div v-else class="self">
+      <img :src="headerImg" alt="" />
+    </div>
+  </div>
+  <div class="menu">
+    <menus @reIndex="reIndex"></menus>
+  </div>
+</div>
 </template>
 
 <script>
-import Menus from "content/Menu";
+import Menus from "./child/Menu";
 export default {
   name: "NavBar",
   components: {
@@ -39,7 +33,10 @@ export default {
       curUser: "",
       isUser: false,
       curIndex: 0,
-      tabList: [
+      tabList: [{
+          name: '星球',
+          path: '/star'
+        },
         {
           name: "社区",
           path: "/social",
@@ -58,7 +55,7 @@ export default {
   watch: {
     index: {
       handler(val) {
-        this.curIndex=val;
+        this.curIndex = val;
       },
     },
   },
@@ -77,17 +74,19 @@ export default {
   mounted() {
     //刷新后无法保持导航栏之前的选中状态
     switch (this.$route.name) {
+      case "star":
+        this.curIndex = 0;break;
       case "social":
-        this.curIndex = 0;
-        break;
-      case "chat":
         this.curIndex = 1;
         break;
-      case "article":
+      case "chat":
         this.curIndex = 2;
         break;
+      case "article":
+        this.curIndex = 3;
+        break;
       case "album":
-        this.curIndex = 2;
+        this.curIndex = 3;
         break;
     }
   },
@@ -144,12 +143,10 @@ export default {
     cursor: pointer;
 
     .textLinear();
-    background-image: linear-gradient(
-      to top,
-      #bdc2e8 0%,
-      #bdc2e8 1%,
-      #e6dee9 100%
-    );
+    background-image: linear-gradient(to top,
+        #bdc2e8 0%,
+        #bdc2e8 1%,
+        #e6dee9 100%);
   }
 
   .demo-tabs {
@@ -184,7 +181,7 @@ export default {
     position: relative;
     cursor: pointer;
 
-    &:hover + .menu {
+    &:hover+.menu {
       display: block;
       z-index: 9999;
     }
@@ -192,12 +189,10 @@ export default {
     .btn {
       cursor: pointer;
       .textLinear();
-      background-image: linear-gradient(
-        -225deg,
-        #69eacb 0%,
-        #eaccf8 48%,
-        #6654f1 100%
-      );
+      background-image: linear-gradient(-225deg,
+          #69eacb 0%,
+          #eaccf8 48%,
+          #6654f1 100%);
     }
 
     .self::after {
@@ -217,7 +212,7 @@ export default {
       border-radius: 50%;
     }
 
-    &:hover + .menu {
+    &:hover+.menu {
       display: block;
     }
   }

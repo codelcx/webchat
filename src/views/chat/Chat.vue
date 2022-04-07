@@ -17,7 +17,7 @@
         <chat-friend-list :friendList="friendList" @createSession="createSession"></chat-friend-list>
       </section>
     </el-aside>
-    <el-container>
+    <el-container ref="styleSheet" :class="backgroundStyle">
       <el-header>{{ curSessionUserName }}</el-header>
       <!--消息窗口-->
       <el-main ref="message">
@@ -33,7 +33,7 @@
             <i class="iconfont icon-tupian"></i>
           </el-upload>
         </div>
-        <el-input ref="textarea" class="comments" type="textarea" placeholder="请输入内容，回车发送！" @keyup.enter.native="sendMsg" v-model="textarea" resize="none" />
+        <el-input ref="textarea" type="textarea" placeholder="请输入内容，回车发送！" @keyup.enter.native="sendMsg" v-model="textarea" resize="none" />
       </el-footer>
     </el-container>
   </el-container>
@@ -48,7 +48,6 @@ import {
   unReadCount,
   clearApply
 } from "@/network/ajax";
-
 
 import {
   createSession,
@@ -92,6 +91,7 @@ export default {
       curIndex: 0, //显示哪个菜单
       cValue: '', //未读聊天数
       fValue: '', //未读好友申请数
+      backgroundStyle: 'background-default'
     };
   },
   watch: {
@@ -106,12 +106,15 @@ export default {
       deep: true,
     },
   },
+
   created() {
     //初始化登录者信息
-    let user = JSON.parse(this.$store.state.user);
+    // let user = JSON.parse(this.$store.state.user);
+    let user = this.$store.getters.getUser;
     this.curUserName = user.username;
     this.curUserId = user.id;
     this.curHeader = user.header;
+    this.backgroundStyle = user.chatBackground == null ? this.backgroundStyle : user.chatBackground;
 
     //初始化websocket链接
     this.initWebSocket(this.curUserId, 9999);
@@ -122,6 +125,7 @@ export default {
     //          
     this.getSessionListAlready();
   },
+
   methods: {
     unReadCount() {
       unReadCount(this.curUserId).then(res => {
@@ -188,8 +192,9 @@ export default {
     },
     websocketonmessage(e) {
       let data = JSON.parse(e.data);
-      this.unReadCount();//获取未读数
-      this.getSessionListAlready();//刷新会话列表显示未读数
+      console.log(data);
+      this.unReadCount(); //获取未读数
+      this.getSessionListAlready(); //刷新会话列表显示未读数
       if (data instanceof Array) {
         this.sessionList = data;
       } else if (data != null) {
@@ -236,8 +241,8 @@ export default {
         this.websock.close();
       }
       this.initWebSocket(this.curUserId, this.curSessionId);
-      this.getMsgList(this.curSessionId);//获取消息列表
-      this.getSessionListAlready();//重新刷新会话列表
+      this.getMsgList(this.curSessionId); //获取消息列表
+      this.getSessionListAlready(); //重新刷新会话列表
       this.cValue = this.cValue - session.unReadCount;
     },
     //获取当前会话的历史消息
@@ -252,13 +257,18 @@ export default {
       if (this.curSessionId == "") {
         return this.$message.error("请选择对象");
       }
+      //即使为空也占有一个字符
+      if (this.textarea.length == 1) {
+        console.log(this.textarea);
+        return this.$message.warning("消息不允许为空");
+      }
+
       let data = {
         fromUserId: this.curUserId, //谁发送的
         content: this.textarea, //消息内容
         contentType: 0,
       };
       this.msgList.push(data);
-      // console.log(data);
       this.websocket.send(this.textarea);
       this.textarea = "";
     },
@@ -288,6 +298,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@import '@/assets/css/member.less';
+
 .chat {
   width: 100%;
   height: 100%;
@@ -301,19 +313,6 @@ export default {
   width: 0;
 }
 
-.aside_right {
-  height: 100%;
-  width: 500px;
-  position: absolute;
-  top: 0;
-  margin-left: 100%;
-  z-index: 99;
-}
-
-.aside_right img {
-  cursor: pointer;
-}
-
 .el-footer {
   width: 100%;
   height: 200px;
@@ -321,44 +320,36 @@ export default {
   position: relative;
   box-shadow: 0 5px 10px #ccc;
   background-color: #eeee;
-  // color: var(--el-text-color-primary);
   text-align: center;
   line-height: 60px;
+
 }
 
 //菜单右侧的宽度
 .el-aside {
   width: 300px;
   background-color: #402e58;
-  // color: var(--el-text-color-primary);
-}
-
-.el-main {
-  position: relative;
-  background-color: #eeeeee;
-  // color: var(--el-text-color-primary);
-}
-
-//右侧内容
-.el-container {
-  width: 95%;
-  min-width: 500px;
-  height: 96vh;
-  overflow-y: hidden;
 }
 
 @menuWidth: 60px;
 
 .content {
   margin-left: @menuWidth;
-  background-color: #ffff;
+
+  //消息窗口
+  .el-main {
+    position: relative;
+  }
 
   //顶部文字
   .el-header {
-    background-color: #ffff;
     text-align: center;
     line-height: 60px;
     z-index: 99;
+    user-select: none;
+    color: #ffffff;
+    box-shadow: 0 0 1px;
+
   }
 
   .el-aside {
@@ -372,6 +363,15 @@ export default {
   }
 }
 
+//右侧内容
+.el-container {
+  width: 95%;
+  min-width: 500px;
+  height: 96vh;
+  overflow-y: hidden;
+
+}
+
 //底部消息发送框
 .icon {
   width: 100%;
@@ -379,6 +379,7 @@ export default {
   z-index: 999;
   display: flex;
   justify-content: flex-start;
+  color: #ffff;
 
   i {
     font-size: 36px;
@@ -394,7 +395,8 @@ export default {
     position: absolute;
     top: -315px;
     left: 0;
-    &:hover{
+
+    &:hover {
       display: block;
     }
   }
@@ -440,6 +442,9 @@ export default {
   border: 0;
   padding-top: 50px;
   font-size: 20px;
+  background-color: black;
+  color: #ffff;
+
 }
 
 :deep(.el-collapse-item__content) {

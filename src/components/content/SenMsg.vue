@@ -1,37 +1,60 @@
 <template>
-<div class="SenMsg">
-  <div class="text">
-    <el-input class="area" v-model="textarea" :autosize="{ minRows: 3, maxRows: 8 }" type="textarea" placeholder="分享趣事" resize="none" />
-  </div>
-  <div class="imgwall">
-    <el-upload :multiple="true" :style="{ display: isFileShow }" ref="file" action="#" :auto-upload="false" list-type="picture-card" :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :on-change="handleChange" :file-list="fileList">
-      <el-icon ref="icon">
-        <Plus />
-      </el-icon>
-    </el-upload>
-    <el-dialog v-model="dialogVisible">
-      <img style="width: 100%; height: 100%" :src="dialogImageUrl" alt="" />
-    </el-dialog>
-  </div>
-  <div class="icon">
-    <div class="iconfont">
-      <i class="iconfont icon-biaoqing" ref="biaoqing" @click="biaoqingClick"></i>
-      <emoji @hemoji="hemoji" :style="{ display: isEmojiShow }" ref="emoji"></emoji>
-      <i class="iconfont icon-tupian" @click="clickUpload"></i>
+  <div class="SenMsg">
+    <div class="text">
+      <el-input
+        class="area"
+        v-model="textarea"
+        :autosize="{ minRows: 3, maxRows: 8 }"
+        type="textarea"
+        placeholder="分享趣事"
+        resize="none"
+      />
     </div>
-    <div class="btn">
-      <el-button type="success" round @click="uploadFile">发送</el-button>
+    <div class="imgwall">
+      <el-upload
+        :multiple="true"
+        :style="{ display: isFileShow }"
+        ref="file"
+        action="#"
+        :auto-upload="false"
+        list-type="picture-card"
+        :on-preview="handlePictureCardPreview"
+        :on-remove="handleRemove"
+        :on-change="handleChange"
+        :file-list="fileList"
+      >
+        <el-icon ref="icon">
+          <Plus />
+        </el-icon>
+      </el-upload>
+      <el-dialog v-model="dialogVisible">
+        <img style="width: 100%; height: 100%" :src="dialogImageUrl" alt="" />
+      </el-dialog>
+    </div>
+    <div class="icon">
+      <div class="iconfont">
+        <i
+          class="iconfont icon-biaoqing"
+          ref="biaoqing"
+          @click="biaoqingClick"
+        ></i>
+        <emoji
+          @hemoji="hemoji"
+          :style="{ display: isEmojiShow }"
+          ref="emoji"
+        ></emoji>
+        <i class="iconfont icon-tupian" @click="clickUpload"></i>
+      </div>
+      <div class="btn">
+        <el-button type="success" round @click="uploadFile">发送</el-button>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>
 import Emoji from "content/Emoji";
-import {
-  publishArticle,
-  publishArticleText
-} from "@/network/ajax";
+import { publishArticle, publishArticleText } from "@/network/ajax";
 export default {
   components: {
     Emoji,
@@ -121,14 +144,14 @@ export default {
           publishArticleText(formData).then((res) => {
             this.textarea = "";
             //必须要在请求成功后在执行
-            this.$emit('getNewAllArticle');
+            this.$emit("getNewAllArticle");
           });
         } else {
           publishArticle(formData).then((res) => {
             this.textarea = "";
             this.fileList = [];
             this.isFileShow = "none";
-            this.$emit('getNewAllArticle');//重新获取数据
+            this.$emit("getNewAllArticle"); //重新获取数据
           });
         }
       }
@@ -142,7 +165,6 @@ export default {
 <style lang="less" scoped>
 .SenMsg {
   position: relative;
-  margin-bottom: 20px;
   cursor: pointer;
   background-color: #ffff;
   z-index: 99;
@@ -156,7 +178,6 @@ export default {
   &:focus {
     border-color: #ff8200;
   }
-
 }
 
 //照片墙

@@ -1,37 +1,68 @@
 <template>
-<div class="Person" >
+<div class="Person">
   <el-scrollbar height="96vh" ref="scrollbar" @scroll="scroll">
     <el-card :body-style="{ padding: 0 }" v-cloak>
-      <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" />
+      <img src="https://img1.baidu.com/it/u=2944027237,203973857&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=889" />
       <div class="bottom">
         <div class="base">
           <img :src="curUser.header" alt="" />
           <span>{{ curUser.username }}</span>
+          <el-icon v-if="isSelf" @click="centerDialogVisible=!centerDialogVisible">
+            <edit />
+          </el-icon>
           <el-button round v-if="!isSelf" @click="complaint">举报</el-button>
           <el-button round v-if="isFriend && !isSelf" @click="deleteFriend">删除好友</el-button>
           <el-button round v-else-if="!isFriend && !isSelf" @click="makeFriend">加好友</el-button>
         </div>
         <div class="descript">
           <div class="tag">
-            <el-tag class="mx-1" size="large" closable>Large</el-tag>
-            <el-tag class="mx-1" size="large" closable>Large</el-tag>
-            <el-tag class="mx-1" size="large" closable>Large</el-tag>
-            <el-tag class="mx-1" size="large" closable>Large</el-tag>
+            <el-tag class="mx-1" size="large" v-for="item in curUser.tags" :key="item">{{item}}</el-tag>
           </div>
           <el-icon @click="change" :class="isClass ? 'rotate' : ''">
             <arrow-up />
           </el-icon>
 
           <el-descriptions v-if="isShow" title="" :column="2" direction="horizontal" border>
-            <el-descriptions-item :span="2" label="id">{{
-              curUser.id
-            }}</el-descriptions-item>
-            <el-descriptions-item :span="2" label="Username">{{
+            <el-descriptions-item :span="2" label="昵称">{{
               curUser.username
             }}</el-descriptions-item>
-            <el-descriptions-item :span="2" label="header">{{
-              curUser.header
+            <el-descriptions-item :span="2" label="性别">{{
+              curUser.sex
             }}</el-descriptions-item>
+            <el-descriptions-item :span="2" label="星座">{{
+              curUser.star
+            }}</el-descriptions-item>
+            <el-descriptions-item :span="2" label="年龄">{{
+              curUser.age
+            }}</el-descriptions-item>
+
+            <el-descriptions-item :span="2" label="个人简介">
+              {{curUser.profil}}
+            </el-descriptions-item>
+            <el-descriptions-item v-if="loginUser.member===1||isSelf" :span="2" label="大学/职业">
+              {{curUser.vocation}}
+            </el-descriptions-item>
+            <el-descriptions-item v-else :span="2" label="大学/职业">
+              <span>***************</span>
+            </el-descriptions-item>
+            <el-descriptions-item v-if="loginUser.member===1||isSelf" :span="2" label="所在地">{{
+              curUser.location
+            }}</el-descriptions-item>
+            <el-descriptions-item v-else :span="2" label="所在地">
+              <span>***************</span>
+            </el-descriptions-item>
+            <el-descriptions-item v-if="loginUser.member===1||isSelf" :span="2" label="情感状态">
+              {{curUser.emotion}}
+            </el-descriptions-item>
+            <el-descriptions-item v-else :span="2" label="情感状态">
+              <span>***************</span>
+            </el-descriptions-item>
+            <el-descriptions-item v-if="loginUser.member===1||isSelf" :span="2" label="微信/QQ">{{
+              curUser.chat
+            }}</el-descriptions-item>
+            <el-descriptions-item v-else :span="2" label="微信/QQ">
+              <span>***************</span>
+            </el-descriptions-item>
           </el-descriptions>
         </div>
         <div class="nav">
@@ -51,6 +82,11 @@
       </router-view>
     </div>
   </el-scrollbar>
+
+  <el-dialog v-model="centerDialogVisible" width="900px" top="3vh">
+    <person-edit @edit="edit"></person-edit>
+  </el-dialog>
+
 </div>
 </template>
 
@@ -58,15 +94,19 @@
 import {
   getFriendById,
   makeFriend,
-  deleteFriend
+  deleteFriend,
+  getUserById
 } from "@/network/ajax";
 import Essay from "views/person/child/Articles";
 import Album from "views/person/child/Albums";
+import PersonEdit from './child/PersonEdit';
+
 export default {
   name: "Person",
   components: {
     Essay,
     Album,
+    PersonEdit,
   },
   data() {
     return {
@@ -91,14 +131,17 @@ export default {
           path: "/album",
         },
       ],
+      centerDialogVisible: false
     };
   },
   created() {
     this.loginUser = JSON.parse(this.$store.state.user);
-    this.curUser = JSON.parse(this.$store.state.curUser);
+    let user = JSON.parse(this.$store.state.curUser);
 
     this.uid = this.loginUser.id; //登录用户ID
-    this.fid = this.curUser.id; //当前用户ID
+    this.fid = user.id; //当前用户ID
+
+    this.getUserById();
 
     //判断是否是自己
     if (this.uid != this.fid && this.curUser != null) {
@@ -135,6 +178,13 @@ export default {
     }
   },
   methods: {
+    //获取当前用户
+    getUserById() {
+      getUserById(this.fid).then(res => {
+        this.curUser = res.data;
+      })
+    },
+
     change() {
       this.isShow = !this.isShow;
       this.isClass = !this.isClass;
@@ -151,11 +201,21 @@ export default {
     makeFriend() {
       makeFriend(this.uid, this.fid).then((res) => {
         console.log(res);
+        this.$message({
+          showClose: true,
+          message: res.msg,
+          type: 'success',
+        })
       });
     },
     deleteFriend() {
       deleteFriend(this.uid, this.fid).then((res) => {
         this.isFriend = false;
+        this.$message({
+          showClose: true,
+          message: res.msg,
+          type: 'success',
+        })
       });
     },
     complaint() {
@@ -171,13 +231,27 @@ export default {
       this.scrollTop = scrollTop;
       // console.log(this.scrollTop);
     },
+    //修改资料成功
+    edit() {
+      this.getUserById()
+    }
   },
 };
 </script>
 
 <style scoped>
 [v-cloak] {
-  display: none!important;;
+  display: none !important;
+  ;
+}
+
+.Person {
+  position: relative;
+}
+
+.el-dialog {
+  position: absolute;
+  overflow: hidden;
 }
 
 .box-card {
@@ -188,6 +262,7 @@ export default {
 .el-card {
   width: 100%;
   margin: 0;
+  border: 0;
 }
 
 .el-card img {
@@ -199,6 +274,13 @@ export default {
   position: relative;
 }
 
+.base .el-icon {
+  font-size: 26px;
+  position: relative;
+  cursor: pointer;
+  vertical-align: top;
+}
+
 .base img {
   width: 100px;
   height: 100px;
@@ -208,9 +290,9 @@ export default {
 }
 
 .base span {
-  position: absolute;
+  position: relative;
   font-size: 25px;
-  left: 152px;
+  vertical-align: top;
 }
 
 .base .el-button {
@@ -234,6 +316,8 @@ export default {
 .descript .tag .el-tag {
   font-size: 20px;
   margin-right: 20px;
+  user-select: none;
+  border-radius: 50px;
 }
 
 .descript .el-icon {

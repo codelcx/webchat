@@ -5,7 +5,7 @@
       <el-table-column>
         <template v-slot="scope" style="width: 100%">
           <!-- 开始会话，将选中的session对象作为参数进行传递 -->
-          <el-row @click="startSession(scope.row)"  :class="curSessionId===scope.row.id?'select':''">
+          <el-row @click="startSession(scope.row)" :class="curSessionId===scope.row.id?'select':''">
             <el-col :span="6">
               <img :src="scope.row.toHeader" alt="" />
             </el-col>
@@ -27,13 +27,13 @@
 <script>
 export default {
   name: 'ChatSession',
-  props: ['sessionList','curSessionId'],
-    computed: {
+  props: ['sessionList', 'curSessionId'],
+  computed: {
     unReadValue() {
       return function (session) {
         let newValue = '';
-        if(this.curSessionId!=session.id){
-          newValue=session.unReadCount==0?'':session.unReadCount;
+        if (this.curSessionId != session.id) {
+          newValue = session.unReadCount == 0 ? '' : session.unReadCount;
         }
         return newValue;
       }
@@ -69,7 +69,7 @@ export default {
       pointer-events: none;
     }
 
-    .el-col:last-child{
+    .el-col:last-child {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -79,7 +79,8 @@ export default {
       background-color: #493664;
     }
   }
-  .select{
+
+  .select {
     background-color: #493664;
   }
 }

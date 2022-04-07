@@ -1,8 +1,9 @@
 <template>
 <div class='Menus'>
   <ul>
-    <li><el-icon><home-filled /></el-icon>修改密码</li>
-    <li @click="exitLogin"><el-icon><home-filled /></el-icon>退出</li>
+    <li @click="member"><i class="iconfont icon-huiyuan"></i>会员开通</li>
+    <li><i class="iconfont icon-xiugaimima"></i>修改密码</li>
+    <li @click="exitLogin"><i class="iconfont icon-tuichudenglu"></i>退出</li>
   </ul>
 </div>
 </template>
@@ -11,6 +12,9 @@
 export default {
   name: 'Menus',
   methods:{
+    member(){
+      this.$router.push('/member');
+    },
     exitLogin(){
       sessionStorage.clear();
       this.$emit('reIndex');
@@ -23,6 +27,7 @@ export default {
 <style scoped>
 .Menus {
   width: 150px;
+  z-index: 99999;
 }
 
 ul {
@@ -43,7 +48,7 @@ li {
 li:hover {
   background-color: #343B4E;
 }
-.el-icon{
+i{
   font-size: 20px;
   vertical-align: middle;
   padding: 0 10px;
