@@ -1,6 +1,6 @@
 <template>
 <div class="NavBar">
-  <div class="logo">起源</div>
+  <div class="logo">起缘</div>
   <div class="demo-tabs">
     <div :class="curIndex == index ? 'select' : ''" class="item" v-for="(item, index) in tabList" :key="item" @click="tabClick(item, index)">
       {{ item.name }}

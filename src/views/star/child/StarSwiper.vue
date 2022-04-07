@@ -12,13 +12,13 @@
         :autoplay="{ autoplay: true, delay: 4000 }"
       >
         <swiper-slide
-          ><img src="~assets/img/style4.jpeg" alt=""
+          ><img src="~assets/img/skin/style4.jpeg" alt=""
         /></swiper-slide>
         <swiper-slide
-          ><img src="~assets/img/style5.jpeg" alt=""
+          ><img src="~assets/img/skin/style5.jpeg" alt=""
         /></swiper-slide>
         <swiper-slide
-          ><img src="~assets/img/style6.jpeg" alt=""
+          ><img src="~assets/img/skin/style6.jpeg" alt=""
         /></swiper-slide>
       </swiper>
     </div>

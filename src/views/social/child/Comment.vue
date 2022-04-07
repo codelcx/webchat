@@ -51,8 +51,7 @@ export default {
     //刷新界面时无须重新请求
     if (this.aid != id) {
       this.article = JSON.parse(window.sessionStorage.getItem("comment"));
-      // console.log('comment');
-      this.aid = id;
+      this.aid = id;//保存最新的文章ID
       this.comment();
     }
   },

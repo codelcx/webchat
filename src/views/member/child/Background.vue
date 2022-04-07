@@ -22,39 +22,39 @@ export default {
   data() {
     return {
       list: [{
-          src: require("assets/img/style1.jpeg"),
+          src: require("assets/img/skin/style1.jpeg"),
           style: "background-style1",
         },
         {
-          src: require("assets/img/style2.jpeg"),
+          src: require("assets/img/skin/style2.jpeg"),
           style: "background-style2",
         },
         {
-          src: require("assets/img/style3.jpeg"),
+          src: require("assets/img/skin/style3.jpeg"),
           style: "background-style3",
         },
         {
-          src: require("assets/img/style4.jpeg"),
+          src: require("assets/img/skin/style4.jpeg"),
           style: "background-style4",
         },
         {
-          src: require("assets/img/style5.jpeg"),
+          src: require("assets/img/skin/style5.jpeg"),
           style: "background-style5",
         },
         {
-          src: require("assets/img/style6.jpeg"),
+          src: require("assets/img/skin/style6.jpeg"),
           style: "background-style6",
         },
         {
-          src: require("assets/img/style7.jpeg"),
+          src: require("assets/img/skin/style7.jpeg"),
           style: "background-style7",
         },
         {
-          src: require("assets/img/style8.jpeg"),
+          src: require("assets/img/skin/style8.jpeg"),
           style: "background-style8",
         },
         {
-          src: require("assets/img/style9.jpeg"),
+          src: require("assets/img/skin/style9.jpeg"),
           style: 'background-style9'
         },
       ],
